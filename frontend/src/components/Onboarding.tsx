@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "../styles/Onboarding.css";
+// Import styles as an object from the renamed .module.css file
+import styles from "../styles/Onboarding.module.css"; 
 
 const Onboarding = () => {
   const [form, setForm] = useState({
@@ -20,17 +21,17 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       {/* LEFT SIDE */}
-      <div className="left">
+      <div className={styles.left}>
         <h1>Startup Simulator</h1>
         <h2>Plan Your Business Strategy</h2>
         <p>Enter your details to start a guided session with our expert agents.</p>
-        <p className="example">Eg. "Milk delivery in a small town"</p>
+        <p className={styles.example}>Eg. "Milk delivery in a small town"</p>
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="right">
+      <div className={styles.right}>
         <input
           placeholder="Business Idea"
           value={form.idea}
@@ -56,11 +57,12 @@ const Onboarding = () => {
         />
 
         {/* ROLE SELECTION */}
-        <div className="roles">
+        <div className={styles.roles}>
           {["CTO", "CMO", "CFO"].map((role) => (
             <button
               key={role}
-              className={form.roles.includes(role) ? "active" : ""}
+              // Dynamically apply the 'active' class from the module
+              className={form.roles.includes(role) ? styles.active : ""}
               onClick={() => toggleRole(role)}
             >
               {role}
@@ -79,7 +81,7 @@ const Onboarding = () => {
         <input type="range" />
 
         {/* BUTTON */}
-        <button className="start">Start Meeting</button>
+        <button className={styles.start}>Start Meeting</button>
       </div>
     </div>
   );
