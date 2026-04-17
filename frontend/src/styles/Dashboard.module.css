@@ -1,0 +1,160 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* TOP */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.top p {
+  color: var(--text-secondary);
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  cursor: pointer;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.title {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: red;
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* COLORS */
+.blue { background: #3b82f6; }
+.yellow { background: #eab308; }
+.green { background: #10b981; }
+.red { background: #ef4444; }
+.purple { background: #8b5cf6; }
+
+/* CHARTS */
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.chartBox {
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* BAR */
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 150px;
+  margin-top: 20px;
+}
+
+.barChart div {
+  width: 20px;
+  background: #ef4444;
+  border-radius: 4px;
+}
+
+/* PIE */
+.pie {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: 20px auto;
+  background: conic-gradient(
+    #3b82f6 0% 45%,
+    #8b5cf6 45% 75%,
+    #10b981 75% 90%,
+    #f59e0b 90% 100%
+  );
+}
+
+/* RECENT */
+.recent {
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.chat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  background: var(--bg-primary);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border-radius: 50%;
+}
+
+.chatContent {
+  flex: 1;
+}
+
+.chatContent span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.time {
+  font-size: 12px;
+  color: var(--text-secondary);
+}

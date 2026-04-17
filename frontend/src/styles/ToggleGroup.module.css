@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toggle {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.inactive {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.inactive:hover {
+  background-color: #e5e7eb;
+}
