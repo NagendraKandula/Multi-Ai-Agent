@@ -3,6 +3,8 @@ import Onboarding from "./components/Onboarding";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
+import LiveSession from "./components/LiveSession";
+import Decision from "./components/Decision";
 
 import styles from "./styles/AppLayout.module.css";
 
@@ -16,9 +18,9 @@ const App = () => {
     case "dashboard":
       return <Dashboard />;
     case "live":
-      return <div>Live Session</div>;
+      return <LiveSession />;
     case "summary":
-      return <div>Decision Summary</div>;
+      return <Decision />;
     case "history":
       return <div>History</div>;
     case "settings":

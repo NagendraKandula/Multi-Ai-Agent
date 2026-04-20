@@ -1,0 +1,685 @@
+/* ═══════════════════════════════════════════════════
+   AGENDA PAGE
+═══════════════════════════════════════════════════ */
+* {
+  box-sizing: border-box;
+}
+
+.messagesFeed {
+  min-height: 100%;
+}
+
+.agendaPage {
+  min-height: 1000px;
+  padding: 20px 50px;
+  max-width: 1500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.agendaHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agendaTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.agendaSubtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Agenda Card ── */
+.agendaCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.agendaCardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+}
+
+.agendaQuestion {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 10px 0;
+}
+
+.agendaTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #374151;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.agendaTextarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  background: #fff;
+}
+
+.agendaTextarea::placeholder {
+  color: #9ca3af;
+}
+
+.agendaMeta {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.agendaMetaLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.metaRow {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  font-size: 13.5px;
+  color: #374151;
+}
+
+.metaItem strong {
+  color: #111827;
+}
+
+.metaInlineInput {
+  border: none;
+  border-bottom: 1px solid #2563eb;
+  outline: none;
+  font-size: 13.5px;
+  color: #374151;
+  background: transparent;
+  padding: 0 2px;
+  font-family: inherit;
+  width: 300px;
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 2px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.editBtn:hover {
+  opacity: 1;
+}
+
+.startBtn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+
+.startBtn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.startBtn:active {
+  transform: translateY(0);
+}
+
+/* ── Previous Sessions Card ── */
+.previousCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.previousHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.previousTitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.sessionCount {
+  font-size: 13px;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sessionItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.sessionItem:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.sessionItemMain {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.sessionItemTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.sessionItemMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.dot {
+  color: #d1d5db;
+}
+
+.sessionTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.sessionTag {
+  font-size: 12px;
+  color: #374151;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.sessionItemIcon {
+  font-size: 18px;
+  opacity: 0.5;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   LIVE SESSION PAGE
+═══════════════════════════════════════════════════ */
+
+
+.livePage {
+  min-height: 100vh;
+  padding: -10px 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Top Bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  flex-shrink: 0;
+  z-index: 10;
+  top: -8px;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+.topBarSep {
+  color: #d1d5db;
+  font-size: 16px;
+}
+
+.timer {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #374151;
+  font-variant-numeric: tabular-nums;
+}
+
+.decisionLabel {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+  margin-left: 8px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.statusPending {
+  background: #f97316;
+  color: #fff;
+}
+
+.statusDebating {
+  background: #8b5cf6;
+  color: #fff;
+}
+
+.statusDecided {
+  background: #22c55e;
+  color: #fff;
+}
+
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.topBtn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.topBtnActive {
+  background: #ede9fe;
+  border-color: #8b5cf6;
+  color: #7c3aed;
+}
+
+.endBtn {
+  border-color: #fca5a5;
+  color: #ef4444;
+}
+
+.endBtn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* ── Scrollable Chat ── */
+.chatScroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 12px;
+  gap: 0;
+}
+
+.chatScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chatScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatScroll::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+/* ── Hero ── */
+.heroSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0 24px;
+  transition: padding 0.3s;
+}
+
+.heroCompact {
+  padding: 12px 0 8px;
+}
+
+.heroCompact .heroTitle {
+  font-size: 16px;
+}
+
+.heroCompact .sparkleWrap svg {
+  width: 22px;
+  height: 22px;
+}
+
+.sparkleWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroTitle {
+  font-size: 26px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+  margin: 0;
+  transition: font-size 0.3s;
+}
+
+/* ── Agenda display ── */
+.agendaDisplay {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0 24px;
+}
+
+.agendaDisplayLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.agendaDisplayText {
+  display: inline-block;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  color: #374151;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+/* ── Messages ── */
+.messagesFeed {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 16px;
+}
+
+.messageRow {
+  display: flex;
+  flex-direction: column;
+  max-width: 74%;
+  gap: 5px;
+  animation: fadeSlideIn 0.3s ease both;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.messageRowLeft {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.messageRowRight {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.messageRowUser {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.agentLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.agentDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.agentName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.messageBubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #1e293b;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Typing indicator ── */
+.typingBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 2px;
+}
+
+.typingDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9ca3af;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── Input Bar ── */
+.inputBarWrap {
+  position: sticky;
+  bottom: 0;
+  padding: 12px 24px 20px;
+  z-index: 5;
+}
+
+.inputBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 50px;
+  padding: 8px 8px 8px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.inputBar:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 2px 16px rgba(37, 99, 235, 0.12);
+}
+
+.chatInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #374151;
+  background: transparent;
+  font-family: inherit;
+}
+
+.chatInput::placeholder {
+  color: #9ca3af;
+}
+
+.sendBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.sendBtn:hover {
+  transform: scale(1.08);
+}
+
+.sendBtn:active {
+  transform: scale(0.96);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .agendaPage {
+    padding: 20px 16px;
+  }
+
+  .agendaCard,
+  .previousCard {
+    padding: 20px 18px;
+  }
+
+  .chatScroll {
+    padding: 20px 16px 8px;
+  }
+
+  .inputBarWrap {
+    padding: 10px 16px 20px;
+  }
+
+  .messageRow {
+    max-width: 90%;
+  }
+
+  .topBar {
+    padding: 0 14px;
+    gap: 6px;
+  }
+
+  .topBtn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .decisionLabel {
+    display: none;
+  }
+}
