@@ -1,6 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { google } from '@ai-sdk/google';
-
+import { Memory } from '@mastra/memory';
 export const cooAgent = new Agent({
   id: 'coo-agent',
   name: 'Chief Operating Officer',
@@ -13,4 +13,7 @@ export const cooAgent = new Agent({
     - Address workforce and supplier dependency based on user inputs.
   `,
   model: google('gemini-2.5-flash'),
+  memory: new Memory({
+    options: { observationalMemory: true },
+  }),
 });

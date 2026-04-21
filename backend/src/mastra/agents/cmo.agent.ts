@@ -1,5 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { google } from '@ai-sdk/google';
+import { Memory } from '@mastra/memory';
 
 export const cmoAgent = new Agent({
   id: 'cmo-agent',
@@ -17,4 +18,7 @@ Keep answers simple and clear.
 `,
 
   model: google('gemini-2.5-flash'),
+  memory: new Memory({
+    options: { observationalMemory: true },
+  }),
 });

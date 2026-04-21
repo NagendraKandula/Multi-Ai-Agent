@@ -7,12 +7,13 @@ import { csoAgent } from './cso.agent';
 import { cooAgent } from './coo.agent';
 import { cpoAgent } from './cpo.agent';
 import { legalAgent } from './legalofficer.agent';
+import { Memory } from '@mastra/memory';
 
 export const supervisorAgent = new Agent({
   id: 'supervisor-agent',
   name: 'Board Chairman',
   model: google('gemini-2.5-pro'),
-
+memory: new Memory({ options: { observationalMemory: true } }),
   agents: {
     ctoAgent,
     cfoAgent,

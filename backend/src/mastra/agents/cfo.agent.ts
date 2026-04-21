@@ -1,5 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { google } from '@ai-sdk/google';
+import { Memory } from '@mastra/memory';
 export const cfoAgent = new Agent({
   id: 'cfo-agent',
   name: 'Chief Financial Officer',
@@ -16,4 +17,7 @@ Be realistic and numeric.
 `,
 
   model: google('gemini-2.5-flash'),
+  memory: new Memory({
+    options: { observationalMemory: true },
+  }),
 });

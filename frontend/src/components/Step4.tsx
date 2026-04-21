@@ -15,6 +15,8 @@ const techAgents = [
   { id: "CFO", icon: Calculator, title: "CFO", subtitle: "Finance & Strategy" },
   { id: "CPO", icon: Package, title: "CPO", subtitle: "Chief Product Officer" },
   { id: "Legal", icon: Scale, title: "Legal & Compliance", subtitle: "Legal & Regulations" },
+  { id: "COO", icon: Settings, title: "COO", subtitle: "Operations & Efficiency" },
+  { id: "CSO", icon: TrendingUp, title: "CSO", subtitle: "Sales & Partnerships" },
 ];
 
 const nonTechAgents = [
@@ -23,6 +25,7 @@ const nonTechAgents = [
   { id: "CFO", icon: Calculator, title: "CFO", subtitle: "Chief Financial Officer" },
   { id: "Legal", icon: Scale, title: "Legal & Compliance", subtitle: "Legal & Regulations" },
   { id: "CSO", icon: TrendingUp, title: "CSO", subtitle: "Chief Sales Officer" },
+  { id: "CTO", icon: Code, title: "CTO", subtitle: "Technical Advisor" },
 ];
 
 const Step4 = ({ formData, set, back }: Props) => {

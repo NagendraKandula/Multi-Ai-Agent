@@ -1,5 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { google } from '@ai-sdk/google';
+import { Memory } from '@mastra/memory';
 export const legalAgent = new Agent({
   id: 'legal-agent',
   name: 'Legal & Compliance',
@@ -16,4 +17,7 @@ Keep it practical.
 `,
 
   model: google('gemini-2.5-flash'),
+  memory: new Memory({
+    options: { observationalMemory: true },
+  }),
 });
