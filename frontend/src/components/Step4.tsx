@@ -26,6 +26,30 @@ const nonTechAgents = [
 ];
 
 const Step4 = ({ formData, set, back }: Props) => {
+  
+     const handleStartSimulation = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/simulation/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData), // Sends all data from Step 1 to 4 as JSON
+      });
+
+      if (!response.ok) throw new Error('Failed to start simulation');
+
+      const result = await response.json();
+      console.log('Backend Response:', result);
+
+      // Successfully onboarded! Redirect to the Live Session
+      // We pass the threadId in the URL so the dashboard knows which startup to load
+      window.location.href = `/dashboard?threadId=${result.threadId}`;
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Initialization failed. Check if backend is running.');
+    }
+  }
   const effectiveBizType =
     formData.businessType === "Not Sure" && formData.classifiedBusinessType
       ? formData.classifiedBusinessType
@@ -225,7 +249,9 @@ const Step4 = ({ formData, set, back }: Props) => {
 
       <div className={styles.footer}>
         <button className={styles.secondaryBtn} onClick={back}>← Back</button>
-        <button className={styles.primaryBtn}>Start Simulation →</button>
+        <button className={styles.primaryBtn} onClick={handleStartSimulation}>
+          Start Simulation →
+        </button>
       </div>
     </div>
   );

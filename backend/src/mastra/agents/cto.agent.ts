@@ -1,6 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { google } from '@ai-sdk/google';
-
+import { Memory } from '@mastra/memory';
 export const ctoAgent = new Agent({
   id: 'cto-agent',
   name: 'Chief Technology Officer',
@@ -13,4 +13,7 @@ export const ctoAgent = new Agent({
     Respect the 'Speed to Launch' vs 'Scalability' priority.
   `,
   model: google('gemini-2.5-flash'),
+  memory: new Memory({
+    options: { observationalMemory: true },
+  }),
 });
