@@ -4,7 +4,7 @@ import { google } from '@ai-sdk/google';
 export const cmoAgent = new Agent({
   id: 'cmo-agent',
   name: 'Chief Marketing Officer',
-
+description: 'Handles marketing strategy, growth, user acquisition',
   instructions: `
 You are a Chief Marketing Officer.
 

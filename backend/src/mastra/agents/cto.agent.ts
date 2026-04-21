@@ -4,6 +4,7 @@ import { Memory } from '@mastra/memory';
 export const ctoAgent = new Agent({
   id: 'cto-agent',
   name: 'Chief Technology Officer',
+    description: 'Handles tech stack, architecture, scalability, and engineering decisions',
   instructions: `
     You are a CTO specializing in technical architecture.
     Tasks:

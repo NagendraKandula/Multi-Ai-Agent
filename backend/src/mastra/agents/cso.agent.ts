@@ -4,6 +4,7 @@ import { google } from '@ai-sdk/google';
 export const csoAgent = new Agent({
   id: 'cso-agent',
   name: 'Chief Sales Officer',
+  description: 'Handles sales strategy and revenue generation',
   instructions: `
     You are a Sales expert for non-technical startups.
     Tasks:

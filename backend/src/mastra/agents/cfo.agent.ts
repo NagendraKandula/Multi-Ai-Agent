@@ -3,7 +3,7 @@ import { google } from '@ai-sdk/google';
 export const cfoAgent = new Agent({
   id: 'cfo-agent',
   name: 'Chief Financial Officer',
-
+description: 'Handles budgeting, cost estimation, revenue models, ROI',
   instructions: `
 You are a CFO.
 

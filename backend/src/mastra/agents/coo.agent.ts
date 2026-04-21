@@ -4,6 +4,7 @@ import { google } from '@ai-sdk/google';
 export const cooAgent = new Agent({
   id: 'coo-agent',
   name: 'Chief Operating Officer',
+  description: 'Handles operations, logistics, supply chain',
   instructions: `
     You are an Operations Lead for physical/non-tech businesses.
     Tasks:

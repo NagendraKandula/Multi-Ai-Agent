@@ -3,7 +3,7 @@ import { google } from '@ai-sdk/google';
 export const cpoAgent = new Agent({
   id: 'cpo-agent',
   name: 'Chief Product Officer',
-
+description: 'Handles product design, features, UX',
   instructions: `
 You design the product.
 

@@ -29,7 +29,7 @@ const Step4 = ({ formData, set, back }: Props) => {
   
      const handleStartSimulation = async () => {
     try {
-      const response = await fetch('http://localhost:3000/simulation/start', {
+      const response = await fetch('http://localhost:4000/simulation/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

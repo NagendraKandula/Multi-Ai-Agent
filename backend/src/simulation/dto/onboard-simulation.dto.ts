@@ -2,16 +2,16 @@ import { IsString, IsArray, IsNumber, IsOptional } from 'class-validator';
 
 export class OnboardSimulationDto {
   // Step 1: Basic & Problem
-  @IsString() businessName: string;
-  @IsString() location: string;
-  @IsString() budgetRange: string;
-  @IsString() targetMarket: string;
-  @IsString() businessType: 'Tech' | 'Non Tech' | 'Both' | 'Not Sure';
-  @IsString() problemSolving: string;
-  @IsString() currentSolution: string;
-  @IsString() betterSolution: string;
-  @IsString() stage: string;
-  @IsString() helpNeeded: string;
+  @IsString() businessName!: string;
+  @IsString() location!: string;
+  @IsString() budgetRange!: string;
+  @IsString() targetMarket!: string;
+  @IsString() businessType!: 'Tech' | 'Non Tech' | 'Both' | 'Not Sure';
+  @IsString() problemSolving!: string;
+  @IsString() currentSolution!: string;
+  @IsString() betterSolution!: string;
+  @IsString() stage!: string;
+  @IsString() helpNeeded!: string;
 
   // Step 2: Dynamic Sections (Marked Optional as they depend on businessType)
   // Tech Fields
@@ -39,20 +39,20 @@ export class OnboardSimulationDto {
   @IsOptional() @IsString() licensesRequired?: string;
 
   // Step 3: Market & Business
-  @IsString() idealCustomer: string;
-  @IsString() marketScope: string;
-  @IsString() competitors: string;
-  @IsString() revenueModel: string;
-  @IsString() growthGoal: string;
-  @IsString() roiTimeline: string;
+  @IsString() idealCustomer!: string;
+  @IsString() marketScope!: string;
+  @IsString() competitors!: string;
+  @IsString() revenueModel!: string;
+  @IsString() growthGoal!: string;
+  @IsString() roiTimeline!: string;
 
   // Step 4: Strategy & AI Setup
-  @IsNumber() speedToLaunch: number;
-  @IsNumber() productQuality: number;
-  @IsNumber() costEfficiency: number;
-  @IsString() constraint: string;
-  @IsString() riskAppetite: string;
-  @IsString() founderExperience: string;
-  @IsString() successMetric: string;
-  @IsArray() @IsString({ each: true }) selectedAgents: string[];
+  @IsNumber() speedToLaunch!: number;
+  @IsNumber() productQuality!: number;
+  @IsNumber() costEfficiency!: number;
+  @IsString() constraint!: string;
+  @IsString() riskAppetite!: string;
+  @IsString() founderExperience!: string;
+  @IsString() successMetric!: string;
+  @IsArray() @IsString({ each: true }) selectedAgents!: string[];
 }
