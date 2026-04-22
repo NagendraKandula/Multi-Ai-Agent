@@ -30,29 +30,23 @@ const nonTechAgents = [
 
 const Step4 = ({ formData, set, back }: Props) => {
   
-     const handleStartSimulation = async () => {
+    const handleStartSimulation = async () => {
     try {
-      const response = await fetch('http://localhost:8000/start', {
+      const response = await fetch('http://localhost:4000/simulation/start', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData), // Sends all data from Step 1 to 4 as JSON
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error('Failed to start simulation');
+      if (!response.ok) throw new Error('Simulation failed');
 
-      const result = await response.json();
-      console.log('Backend Response:', result);
-
-      // Successfully onboarded! Redirect to the Live Session
-      // We pass the threadId in the URL so the dashboard knows which startup to load
-      window.location.href = `/live?threadId=${result.threadId}`;
+      const data = await response.json();
+      console.log('AI Startup Plan:', data.plan);
+      // You can now redirect the user to a dashboard or display the result
     } catch (error) {
-      console.error('Error:', error);
-      alert('Initialization failed. Check if backend is running.');
+      console.error('Error starting simulation:', error);
     }
-  }
+  };
   const effectiveBizType =
     formData.businessType === "Not Sure" && formData.classifiedBusinessType
       ? formData.classifiedBusinessType
