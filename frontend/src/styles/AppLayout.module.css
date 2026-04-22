@@ -1,0 +1,23 @@
+/* FULL APP */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* BELOW HEADER */
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SIDEBAR stays left (your existing styles apply) */
+
+/* MAIN CONTENT */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: var(--bg-primary);
+}

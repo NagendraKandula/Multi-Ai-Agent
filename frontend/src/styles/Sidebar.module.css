@@ -1,0 +1,38 @@
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 20px 12px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.item:hover {
+  background: #e5e7eb;
+}
+
+.active {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.item svg {
+  color: inherit;
+}
