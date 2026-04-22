@@ -9,4 +9,10 @@ export class AppController {
   async startSimulation(@Body() formData: any) {
     return await this.appService.runStartupSimulation(formData);
   }
+
+  @Post('message')
+  async handleMessage(@Body() body: { message: string; onboardingData: any }) {
+    // Pass arguments separately to match the service definition
+    return await this.appService.handleLiveDebate(body.message, body.onboardingData);
+  }
 }

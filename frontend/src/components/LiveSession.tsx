@@ -18,7 +18,6 @@ interface Props {
   targetMarket?: string;
   problemSolving?: string;
   selectedAgents?: string[];
-  // Allow any other fields from the 4-step wizard
   [key: string]: any; 
 }
 
@@ -32,6 +31,7 @@ const AGENT_COLORS: Record<string, string> = {
   CPO: "#8b5cf6",
   Legal: "#06b6d4",
   CSO: "#f97316",
+  Supervisor: "#1e293b", // Updated label
   "Board Chairman": "#1e293b"
 };
 
@@ -43,6 +43,7 @@ const AGENT_BG: Record<string, string> = {
   CPO: "#ede9fe",
   Legal: "#cffafe",
   CSO: "#ffedd5",
+  Supervisor: "#f3f4f6"
 };
 
 // ─── Agenda Setup Page ────────────────────────────────────────────────────────
@@ -85,7 +86,7 @@ const AgendaPage = ({
 const LiveSessionPage = ({
   agenda,
   onEnd,
-  ...onboardingData // Capture all Step 1-4 data
+  ...onboardingData 
 }: { agenda: string; onEnd: () => void } & Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
@@ -96,12 +97,10 @@ const LiveSessionPage = ({
   const threadId = searchParams.get("threadId");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // ─── Auto Scroll ───
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typingAgent]);
 
-  // ─── Initial Meeting Call ───
   useEffect(() => {
     if (!initiated && agenda) {
       setInitiated(true);
@@ -109,18 +108,17 @@ const LiveSessionPage = ({
     }
   }, [agenda, initiated]);
 
-  // ─── REAL AI DEBATE API CALL ───
+  // ─── UPDATED: NESTJS API CALL ───
   const handleAskBoard = async (text: string) => {
-    setTypingAgent("Board Chairman");
+    setTypingAgent("Supervisor"); // Set to Supervisor while waiting
 
     try {
-      const response = await fetch("http://localhost:8000/message", {
+      const response = await fetch("http://localhost:4000/simulation/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          problem: text,
-          threadId: threadId,
-          onboarding_data: onboardingData, // Send all wizard context
+          message: text,
+          onboardingData: onboardingData, 
         }),
       });
 
@@ -129,28 +127,21 @@ const LiveSessionPage = ({
       const data = await response.json();
       setTypingAgent(null);
 
-      // Backend returns "responses": ["CTO: text", "CFO: text"]
+      // Handle structured JSON array: [{"agent": "CTO", "content": "..."}]
       if (data.responses && Array.isArray(data.responses)) {
-        data.responses.forEach((content: string, idx: number) => {
-          // Parse "Role: Message" format
-          const [agentName, ...rest] = content.split(": ");
-          const messageBody = rest.join(": ");
+        const newMessages = data.responses.map((res: any, idx: number) => ({
+          id: `ai-${Date.now()}-${idx}`,
+          agent: res.agent || "Agent",
+          content: res.content,
+          side: "right" as const,
+        }));
 
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: `ai-${Date.now()}-${idx}`,
-              agent: agentName || "Board Member",
-              content: messageBody || content,
-              side: "right", 
-            },
-          ]);
-        });
+        setMessages((prev) => [...prev, ...newMessages]);
       }
     } catch (err) {
       console.error(err);
       setTypingAgent(null);
-      alert("The Board meeting was interrupted. Check if Python backend is running.");
+      alert("The Board meeting was interrupted. Ensure NestJS backend is running on port 4000.");
     }
   };
 
@@ -159,13 +150,11 @@ const LiveSessionPage = ({
     if (!text) return;
     setUserInput("");
     
-    // Add user bubble
     setMessages((prev) => [
       ...prev,
       { id: `user-${Date.now()}`, agent: "You", content: text, side: "left" },
     ]);
 
-    // Trigger AI debate
     handleAskBoard(text);
   };
 
@@ -175,7 +164,7 @@ const LiveSessionPage = ({
         <div className={styles.topBarLeft}>
           <span className={styles.liveIndicator}><span className={styles.liveDot} />Live Session</span>
           <span className={styles.topBarSep}>•</span>
-          <span className={styles.decisionLabel}>Persisting Board: {threadId || 'New Session'}</span>
+          <span className={styles.decisionLabel}>Business: {onboardingData.businessName}</span>
         </div>
         <div className={styles.topBarRight}>
           <button className={`${styles.topBtn} ${styles.endBtn}`} onClick={onEnd}>End</button>
@@ -211,7 +200,7 @@ const LiveSessionPage = ({
             <div className={styles.messageRowLeft}>
                <div className={styles.agentLabel}>
                 <span className={styles.agentDot} style={{ background: AGENT_COLORS[typingAgent] }} />
-                <span className={styles.agentName}>{typingAgent}</span>
+                <span className={styles.agentName}>{typingAgent} is coordinating...</span>
               </div>
               <div className={styles.typingBubble}>
                 <span className={styles.typingDot} />
@@ -249,15 +238,7 @@ const LiveSessionPage = ({
 const LiveSession = (props: Props) => {
   const [view, setView] = useState<"agenda" | "live">("agenda");
   const [agenda, setAgenda] = useState("");
-  const [searchParams] = useSearchParams();
   
-  useEffect(() => {
-    if (searchParams.get("threadId")) {
-      setAgenda(props.problemSolving || "Let's begin the review.");
-      setView("live");
-    }
-  }, [searchParams, props.problemSolving]);
-
   return view === "live" ? (
     <LiveSessionPage
       agenda={agenda}

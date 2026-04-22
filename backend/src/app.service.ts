@@ -3,25 +3,53 @@ import { mastra } from './mastra';
 
 @Injectable()
 export class AppService {
+  // Method for initial Step 4 roadmap
   async runStartupSimulation(formData: any) {
     const supervisor = mastra.getAgentById('supervisor');
-    
-    // The prompt instructs the supervisor to use the specific agents selected by the user
     const prompt = `
-      Simulation Request:
-      Business: ${formData.businessName}
+      Initial Simulation for: ${formData.businessName}
       Problem: ${formData.problemSolving}
       Constraint: ${formData.constraint}
+      Onboard: ${formData.selectedAgents.join(', ')}
+      Provide a comprehensive initial roadmap.
+    `;
+    const result = await supervisor.generate(prompt);
+    return { plan: result.text };
+  }
+
+  // Method for Live Session debate
+  async handleLiveDebate(message: string, onboardingData: any) {
+    const supervisor = mastra.getAgentById('supervisor');
+    
+    const prompt = `
+      CONTEXT:
+      Business: ${onboardingData.businessName}
+      Constraint: ${onboardingData.constraint}
+      Problem: ${onboardingData.problemSolving}
       
-      ONBOARD THE FOLLOWING AGENTS: ${formData.selectedAgents.join(', ')}.
+      USER INPUT: "${message}"
       
-      Instructions: 
-      1. Consult only the agents listed above.
-      2. Ask each for their domain-specific roadmap.
-      3. Create a unified execution plan.
+      INSTRUCTIONS:
+      1. Initiate a debate between: ${onboardingData.selectedAgents.join(', ')}.
+      2. Each agent provides a critique or suggestion.
+      3. Supervisor provides final summary.
+      
+      RETURN ONLY A JSON ARRAY:
+      [{"agent": "CTO", "content": "..."}, {"agent": "supervisor", "content": "..."}]
     `;
 
     const result = await supervisor.generate(prompt);
-    return { plan: result.text };
+
+    // Clean markdown formatting if present
+    const cleanJson = result.text.replace(/```json|```/g, '').trim();
+    
+    try {
+      return { responses: JSON.parse(cleanJson) };
+    } catch (e) {
+      // Fallback if AI fails to return valid JSON array
+      return { 
+        responses: [{ agent: 'Supervisor', content: result.text }] 
+      };
+    }
   }
 }

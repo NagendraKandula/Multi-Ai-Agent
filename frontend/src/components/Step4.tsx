@@ -41,12 +41,14 @@ const Step4 = ({ formData, set, back }: Props) => {
       if (!response.ok) throw new Error('Simulation failed');
 
       const data = await response.json();
-      console.log('AI Startup Plan:', data.plan);
-      // You can now redirect the user to a dashboard or display the result
-    } catch (error) {
-      console.error('Error starting simulation:', error);
-    }
-  };
+     set({ initialPlan: data.plan, currentView: 'live-session' }); 
+    
+    // 2. The parent component should listen for 'currentView' to switch components
+    console.log('AI Startup Plan Received, Redirecting...');
+  } catch (error) {
+    console.error('Error starting simulation:', error);
+  }
+};
   const effectiveBizType =
     formData.businessType === "Not Sure" && formData.classifiedBusinessType
       ? formData.classifiedBusinessType
