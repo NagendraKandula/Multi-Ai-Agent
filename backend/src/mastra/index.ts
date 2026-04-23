@@ -3,94 +3,70 @@ import { Agent } from '@mastra/core/agent';
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
 
-// ✅ Load single API key
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
 const model = groq('meta-llama/llama-4-scout-17b-16e-instruct');
 
-// ✅ Define Agents
 const ctoAgent = new Agent({
   id: 'cto',
   name: 'CTO',
   model,
-  instructions: 'Tech strategy expert.',
-});
+  instructions: `
+You are in a tense startup board meeting.
 
-const cmoAgent = new Agent({
-  id: 'cmo',
-  name: 'CMO',
-  model,
-  instructions: 'Marketing and growth expert.',
+- Speak like a real human (not formal)
+- Refer to EXACT previous statements (mention CFO/CMO points)
+- Disagree when needed
+- Use numbers / tradeoffs
+- Max 2–3 short sentences
+
+Do NOT say you lack context.
+`,
 });
 
 const cfoAgent = new Agent({
   id: 'cfo',
   name: 'CFO',
   model,
-  instructions: 'Financial planning expert.',
+  instructions: `
+- Use sharp, short sentences
+- Ask one direct question with numbers if possible
+- Sound skeptical, slightly aggressive
+`,
 });
 
-const cpoAgent = new Agent({
-  id: 'cpo',
-  name: 'CPO',
+const cmoAgent = new Agent({
+  id: 'cmo',
+  name: 'CMO',
   model,
-  instructions: 'Product development expert.',
+  instructions: `
+- Be energetic and persuasive
+- Avoid repeating same argument
+- Add one NEW growth idea each round
+`,
 });
 
-const legalAgent = new Agent({
-  id: 'legal',
-  name: 'Legal',
-  model,
-  instructions: 'Compliance and legal expert.',
-});
-
-const csoAgent = new Agent({
-  id: 'cso',
-  name: 'CSO',
-  model,
-  instructions: 'Corporate strategy expert.',
-});
-
-const cooAgent = new Agent({
-  id: 'coo',
-  name: 'COO',
-  model,
-  instructions: 'Operations and logistics expert.',
-});
-
-// ✅ Supervisor
 const supervisor = new Agent({
   id: 'supervisor',
   name: 'Supervisor',
   model,
   instructions: `
-    You are the board supervisor.
-    You coordinate multiple agents and produce structured responses.
-  `,
-  agents: {
-    ctoAgent,
-    cmoAgent,
-    cfoAgent,
-    cpoAgent,
-    legalAgent,
-    csoAgent,
-    cooAgent,
-  },
+Make a final decision:
+- 5 sentences
+- One clear direction
+- Mention trade-offs
+- Sound like a CEO conclusion
+`,
 });
 
-// ✅ Export Mastra
 export const mastra = new Mastra({
   agents: {
+    cto: ctoAgent,
+    cfo: cfoAgent,
+    cmo: cmoAgent,
     supervisor,
-    ctoAgent,
-    cmoAgent,
-    cfoAgent,
-    cpoAgent,
-    legalAgent,
-    csoAgent,
-    cooAgent,
   },
   logger: new PinoLogger({ name: 'Mastra', level: 'info' }),
 });

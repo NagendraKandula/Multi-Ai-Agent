@@ -1,121 +1,159 @@
 import { Injectable } from '@nestjs/common';
 import { mastra } from './mastra';
 
+type Message = {
+  agent: string;
+  content: string;
+};
+
+type Round = {
+  round: number;
+  messages: Message[];
+};
+
 @Injectable()
 export class AppService {
 
-  // =========================
-  // STARTUP SIMULATION (FIXED)
-  // =========================
-  async runStartupSimulation(formData: any) {
-    const supervisor = mastra.getAgentById('supervisor');
-
-    const agents = formData?.selectedAgents ?? [];
-    const agentsList = agents.length ? agents.join(', ') : 'CTO, CFO, CMO';
-
-    const prompt = `
-Startup: ${formData?.businessName || "Unknown"}
-Problem: ${formData?.problemSolving || "Not specified"}
-Constraint: ${formData?.constraint || "None"}
-Agents: ${agentsList}
-
-Give a structured startup roadmap with:
-- Problem analysis
-- Strategy
-- Execution plan
-- Risks
-- Timeline
-`;
-
-    const result = await supervisor.generate(prompt);
-
-    return { plan: result.text };
+  async runStartupSimulation(data: any) {
+    return { status: "initialized", data };
   }
 
-  // =========================
-  // LIVE DEBATE ENGINE (FIXED)
-  // =========================
-  async handleLiveDebate(message: string, onboardingData: any) {
+  async handleLiveDebate(message: string, data: any) {
+
+  const cto = mastra.getAgentById('cto');
+  const cfo = mastra.getAgentById('cfo');
+  const cmo = mastra.getAgentById('cmo');
   const supervisor = mastra.getAgentById('supervisor');
 
-  const agents = onboardingData?.selectedAgents ?? ["CTO", "CFO", "CMO"];
-  const agentsList = agents.join(', ');
-
-  const prompt = `
-You are a REAL-TIME BOARDROOM SIMULATION ENGINE.
-
-STRICT REQUIREMENTS:
-- Output EXACTLY 3 rounds
-- Each round MUST include ALL agents
-- Round 1 = ideas
-- Round 2 = conflict / disagreement
-- Round 3 = final decision (Supervisor only)
-- NO repetition
-- NO summaries
-- MUST escalate tension each round
-
-STYLE RULES:
-- CTO = technical + bold
-- CFO = skeptical + cost focused
-- CMO = growth + persuasion
-
-CONTEXT:
-Startup: ${onboardingData?.businessName || "Unknown"}
-Problem: ${onboardingData?.problemSolving || "Not specified"}
-Constraint: ${onboardingData?.constraint || "None"}
-User Message: ${message}
-
-Agents: ${agentsList}
-
-OUTPUT ONLY VALID JSON:
-
-{
-  "rounds": [
-    {
-      "round": 1,
-      "messages": [
-        {"agent": "CTO", "content": "...initial strategy..."},
-        {"agent": "CFO", "content": "...cost concern..."},
-        {"agent": "CMO", "content": "...growth idea..."}
-      ]
-    },
-    {
-      "round": 2,
-      "messages": [
-        {"agent": "CTO", "content": "...counter argument..."},
-        {"agent": "CFO", "content": "...risk escalation..."},
-        {"agent": "CMO", "content": "...market pushback..."}
-      ]
-    },
-    {
-      "round": 3,
-      "messages": [
-        {"agent": "Supervisor", "content": "final decision with reasoning"}
-      ]
-    }
-  ]
-}
+  const context = `
+Startup: ${data?.businessName || "Unknown"}
+Problem: ${data?.problemSolving || "Not specified"}
+Constraint: ${data?.constraint || "None"}
+User Question: ${message}
 `;
 
-  const result = await supervisor.generate(prompt);
-
-  const clean = result.text
-    .replace(/```json/g, '')
-    .replace(/```/g, '')
-    .trim();
+  const rounds: Round[] = [];
+  let memory = context;
 
   try {
-    return JSON.parse(clean);
-  } catch (e) {
+    // 🔁 REAL DEBATE LOOP
+    for (let i = 1; i <= 3; i++) {
+
+      const roundMessages: Message[] = [];
+
+      // =====================
+      // CTO
+      // =====================
+      const ctoRes = await cto.generate(`
+${memory}
+
+You are in a tense startup board meeting.
+
+- Speak like a real human (not formal)
+- Refer to EXACT previous statements (mention CFO/CMO points)
+- Disagree when needed
+- Use numbers / tradeoffs
+- Max 2–3 short sentences
+
+Do NOT say you lack context.
+`);
+
+      roundMessages.push({ agent: "CTO", content: ctoRes.text });
+      memory += `\nCTO: ${ctoRes.text}`;
+
+      // =====================
+      // CFO
+      // =====================
+      const cfoRes = await cfo.generate(`
+${memory}
+
+You are a skeptical CFO in a heated discussion.
+
+- Directly challenge CTO’s last statement
+- Ask for numbers, ROI, risks
+- Be slightly aggressive
+- Use budget pressure (₹2L–₹5L constraint)
+- Max 2–3 sharp sentences
+
+No generic advice.
+`);
+
+      roundMessages.push({ agent: "CFO", content: cfoRes.text });
+      memory += `\nCFO: ${cfoRes.text}`;
+
+      // =====================
+      // CMO
+      // =====================
+      const cmoRes = await cmo.generate(`
+${memory}
+
+You are a bold CMO pushing for growth.
+
+- React to BOTH CTO and CFO
+- Defend growth even if risky
+- Suggest real tactics (campaigns, referrals, pricing)
+- Be persuasive but practical
+- Max 2–3 sentences
+
+Avoid generic marketing talk.
+`);
+
+      roundMessages.push({ agent: "CMO", content: cmoRes.text });
+      memory += `\nCMO: ${cmoRes.text}`;
+
+      // 🚫 Prevent repetition explicitly
+      memory += `\nKeep responses short, direct, and conversational. Avoid long explanations.`;
+
+      rounds.push({
+        round: i,
+        messages: roundMessages,
+      });
+    }
+
+    // =====================
+    // 🧠 FINAL DECISION
+    // =====================
+    const final = await supervisor.generate(`
+${memory}
+
+You are the CEO closing the meeting.
+
+- Make a FINAL decision (not summary)
+- Mention:
+  - What we will do
+  - What we will NOT do
+  - Budget allocation
+- Sound decisive and realistic
+- 4–5 sentences max
+`);
+
+    rounds.push({
+      round: 4,
+      messages: [
+        {
+          agent: "Supervisor",
+          content: final.text,
+        },
+      ],
+    });
+
+    return { rounds };
+
+  } catch (err) {
+    console.error(err);
+
     return {
       rounds: [
         {
           round: 1,
           messages: [
-            { agent: "Supervisor", content: result.text }
-          ]
-        }
-      ]
+            {
+              agent: "Supervisor",
+              content: "Something went wrong. Please try again.",
+            },
+          ],
+        },
+      ],
     };
   }
 }
