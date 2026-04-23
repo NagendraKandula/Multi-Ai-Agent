@@ -4,83 +4,119 @@ import { mastra } from './mastra';
 @Injectable()
 export class AppService {
 
-  // ✅ Initial roadmap
+  // =========================
+  // STARTUP SIMULATION (FIXED)
+  // =========================
   async runStartupSimulation(formData: any) {
     const supervisor = mastra.getAgentById('supervisor');
 
-    const agentsList = (formData?.selectedAgents || []).join(', ');
+    const agents = formData?.selectedAgents ?? [];
+    const agentsList = agents.length ? agents.join(', ') : 'CTO, CFO, CMO';
 
     const prompt = `
-      Startup: ${formData?.businessName || "Unknown"}
-      Problem: ${formData?.problemSolving || "Not specified"}
-      Constraint: ${formData?.constraint || "None"}
-      Agents: ${agentsList || "CTO, CFO, CMO"}
+Startup: ${formData?.businessName || "Unknown"}
+Problem: ${formData?.problemSolving || "Not specified"}
+Constraint: ${formData?.constraint || "None"}
+Agents: ${agentsList}
 
-      Provide a clear startup roadmap.
-    `;
+Give a structured startup roadmap with:
+- Problem analysis
+- Strategy
+- Execution plan
+- Risks
+- Timeline
+`;
 
     const result = await supervisor.generate(prompt);
 
     return { plan: result.text };
   }
 
-  // ✅ Live debate
-  // backend/src/app.service.ts
-
+  // =========================
+  // LIVE DEBATE ENGINE (FIXED)
+  // =========================
   async handleLiveDebate(message: string, onboardingData: any) {
-    const supervisor = mastra.getAgentById('supervisor');
-    const agentsList = (onboardingData?.selectedAgents || []).join(', ');
+  const supervisor = mastra.getAgentById('supervisor');
 
-    const prompt = `
-ROLE: Boardroom Moderator (Supervisor)
+  const agents = onboardingData?.selectedAgents ?? ["CTO", "CFO", "CMO"];
+  const agentsList = agents.join(', ');
+
+  const prompt = `
+You are a REAL-TIME BOARDROOM SIMULATION ENGINE.
+
+STRICT REQUIREMENTS:
+- Output EXACTLY 3 rounds
+- Each round MUST include ALL agents
+- Round 1 = ideas
+- Round 2 = conflict / disagreement
+- Round 3 = final decision (Supervisor only)
+- NO repetition
+- NO summaries
+- MUST escalate tension each round
+
+STYLE RULES:
+- CTO = technical + bold
+- CFO = skeptical + cost focused
+- CMO = growth + persuasion
 
 CONTEXT:
-Startup: "${onboardingData?.businessName}"
-Problem: "${onboardingData?.problemSolving}"
-Constraint: "${onboardingData?.constraint}"
-Agenda: "${message}"
+Startup: ${onboardingData?.businessName || "Unknown"}
+Problem: ${onboardingData?.problemSolving || "Not specified"}
+Constraint: ${onboardingData?.constraint || "None"}
+User Message: ${message}
 
-PARTICIPATING AGENTS (IN THIS EXACT ORDER):
-${onboardingData?.selectedAgents.join(', ')}
+Agents: ${agentsList}
 
-STRICT RULES:
-- Each agent must speak EXACTLY ONCE
-- Follow the order EXACTLY as listed
-- Do NOT repeat any agent
-- Do NOT add extra agents
-- Each response must be SHORT and UNIQUE
-- Each agent MUST speak from their domain expertise:
-  - CTO → technology & scalability
-  - CFO → costs & financial risk
-  - CMO → market & growth
-  - COO → operations & execution
-  - CSO → strategy & risk
-  - Legal → compliance
+OUTPUT ONLY VALID JSON:
 
-DEBATE FLOW:
-1. First agent → proposes a strategy
-2. Second agent → critiques the first agent using the constraint
-3. Third agent → adds a different perspective
-4. Supervisor → final decision (ONLY once, at the end)
-
-FORMAT:
-Return ONLY a valid JSON array:
-[
-  {"agent": "CTO", "content": "..."},
-  {"agent": "CFO", "content": "..."},
-  {"agent": "CSO", "content": "..."},
-  {"agent": "Supervisor", "content": "..."}
-]
+{
+  "rounds": [
+    {
+      "round": 1,
+      "messages": [
+        {"agent": "CTO", "content": "...initial strategy..."},
+        {"agent": "CFO", "content": "...cost concern..."},
+        {"agent": "CMO", "content": "...growth idea..."}
+      ]
+    },
+    {
+      "round": 2,
+      "messages": [
+        {"agent": "CTO", "content": "...counter argument..."},
+        {"agent": "CFO", "content": "...risk escalation..."},
+        {"agent": "CMO", "content": "...market pushback..."}
+      ]
+    },
+    {
+      "round": 3,
+      "messages": [
+        {"agent": "Supervisor", "content": "final decision with reasoning"}
+      ]
+    }
+  ]
+}
 `;
 
-    const result = await supervisor.generate(prompt);
-    // Clean markdown before parsing
-    const cleanJson = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
+  const result = await supervisor.generate(prompt);
 
-    try {
-      return { responses: JSON.parse(cleanJson) };
-    } catch (e) {
-      return { responses: [{ agent: 'Supervisor', content: result.text }] };
-    }
+  const clean = result.text
+    .replace(/```json/g, '')
+    .replace(/```/g, '')
+    .trim();
+
+  try {
+    return JSON.parse(clean);
+  } catch (e) {
+    return {
+      rounds: [
+        {
+          round: 1,
+          messages: [
+            { agent: "Supervisor", content: result.text }
+          ]
+        }
+      ]
+    };
   }
+}
 }
