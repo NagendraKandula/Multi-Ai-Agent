@@ -61,23 +61,21 @@ const cooAgent = new Agent({
 });
 
 // ✅ Supervisor
+// backend/src/mastra/index.ts
+
 const supervisor = new Agent({
   id: 'supervisor',
   name: 'Supervisor',
   model,
   instructions: `
-    You are the board supervisor.
-    You coordinate multiple agents and produce structured responses.
+    You are the Board Chairman and Lead Moderator.
+    Your goal is to ensure the startup succeeds despite its constraints.
+    - If a question is technical, ask the CTO first.
+    - If a question is about money, ask the CFO first.
+    - Always encourage agents to DISAGREE with each other to find the best path.
+    - Your final word is the binding decision for the founder.
   `,
-  agents: {
-    ctoAgent,
-    cmoAgent,
-    cfoAgent,
-    cpoAgent,
-    legalAgent,
-    csoAgent,
-    cooAgent,
-  },
+  agents: { ctoAgent, cmoAgent, cfoAgent, cpoAgent, legalAgent, csoAgent, cooAgent },
 });
 
 // ✅ Export Mastra

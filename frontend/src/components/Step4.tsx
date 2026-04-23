@@ -2,7 +2,7 @@ import styles from "../styles/Step4.module.css";
 import {
   Code, Megaphone, Calculator, Scale, Package, Settings, TrendingUp,
 } from "lucide-react";
-
+import { useState } from "react";
 type Props = {
   formData: any;
   set: (data: any) => void;
@@ -29,8 +29,9 @@ const nonTechAgents = [
 ];
 
 const Step4 = ({ formData, set, back }: Props) => {
-  
+  const [isLaunching, setIsLaunching] = useState(false);
     const handleStartSimulation = async () => {
+      setIsLaunching(true);
     try {
       const response = await fetch('http://localhost:4000/simulation/start', {
         method: 'POST',
@@ -41,7 +42,10 @@ const Step4 = ({ formData, set, back }: Props) => {
       if (!response.ok) throw new Error('Simulation failed');
 
       const data = await response.json();
-     set({ initialPlan: data.plan, currentView: 'live-session' }); 
+     alert("🚀 Simulation Initialized! Onboarding your AI Board members now...");
+      
+      // ✅ Redirection Logic
+      set({ initialPlan: data.plan, currentView: 'live-session' });
     
     // 2. The parent component should listen for 'currentView' to switch components
     console.log('AI Startup Plan Received, Redirecting...');
@@ -248,8 +252,8 @@ const Step4 = ({ formData, set, back }: Props) => {
 
       <div className={styles.footer}>
         <button className={styles.secondaryBtn} onClick={back}>← Back</button>
-        <button className={styles.primaryBtn} onClick={handleStartSimulation}>
-          Start Simulation →
+        <button className={styles.primaryBtn} onClick={handleStartSimulation} disabled={isLaunching}>
+          {isLaunching ? "Onboarding Agents..." : "Start Simulation →"}
         </button>
       </div>
     </div>

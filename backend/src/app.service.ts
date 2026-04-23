@@ -25,70 +25,52 @@ export class AppService {
   }
 
   // ✅ Live debate
-  async handleLiveDebate(message: string, onboardingData: any) {
-    const supervisor = mastra.getAgentById('supervisor');
+  // backend/src/app.service.ts
 
-    const agentsList = (onboardingData?.selectedAgents || []).join(', ');
+async handleLiveDebate(message: string, onboardingData: any) {
+  const supervisor = mastra.getAgentById('supervisor');
+  const agentsList = (onboardingData?.selectedAgents || []).join(', ');
 
-    const prompt = `
-CONTEXT:
-Business: ${onboardingData?.businessName || "Unknown"}
-Constraint: ${onboardingData?.constraint || "None"}
-Problem: ${onboardingData?.problemSolving || "Not specified"}
+  const prompt = `
+    ROLE: 
+    You are the Boardroom Moderator (Supervisor). 
 
-USER MESSAGE:
-"${message}"
+    CONTEXT:
+    Startup: ${onboardingData?.businessName}
+    Focus: ${onboardingData?.problemSolving}
+    Constraint: ${onboardingData?.constraint}
 
-TASK:
-Simulate a board discussion between: ${agentsList || "CTO, CFO, CMO"}.
+    USER INPUT:
+    "${message}"
 
-RULES:
-- Each agent gives 1 short response
-- Supervisor gives final summary
-- Keep responses concise
+    DEBATE INSTRUCTIONS:
+    1. Identify the 2-3 most relevant agents for this specific question from: ${agentsList}.
+    2. Orchestrate a "Real Debate":
+       - First Agent: Proposes a solution.
+       - Second Agent: Critiques the first solution or adds a different perspective (e.g., CFO critiques CTO's cost).
+       - Third Agent: Adds legal or operational context.
+    3. Final Summary: You (Supervisor) synthesize the debate into a final decision.
 
-STRICT OUTPUT:
-Return ONLY valid JSON array.
-NO markdown. NO explanation.
+    FORMAT:
+    Return a JSON array where the conversation flows naturally.
+    [
+      { "agent": "CTO", "content": "I suggest building X..." },
+      { "agent": "CFO", "content": "Wait, CTO, building X will exceed our ${onboardingData?.constraint}..." },
+      { "agent": "Supervisor", "content": "CFO makes a valid point. We will pivot to Y..." }
+    ]
 
-FORMAT:
-[
-  { "agent": "CTO", "content": "..." },
-  { "agent": "CFO", "content": "..." },
-  { "agent": "CMO", "content": "..." },
-  { "agent": "Supervisor", "content": "..." }
-]
-`;
+    STRICT: NO Markdown. ONLY valid JSON.
+  `;
 
-    const result = await supervisor.generate(prompt);
+  const result = await supervisor.generate(prompt);
+  const cleanJson = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-    console.log("RAW LLM OUTPUT:", result.text);
-
-    // ✅ Clean response
-    const cleanJson = result.text
-      .replace(/```json/g, '')
-      .replace(/```/g, '')
-      .trim();
-
-    try {
-      const parsed = JSON.parse(cleanJson);
-
-      if (Array.isArray(parsed)) {
-        return { responses: parsed };
-      }
-
-      throw new Error("Not an array");
-    } catch (err) {
-      console.error("JSON PARSE FAILED:", cleanJson);
-
-      return {
-        responses: [
-          {
-            agent: 'Supervisor',
-            content: result.text,
-          },
-        ],
-      };
-    }
+  try {
+    const parsed = JSON.parse(cleanJson);
+    return { responses: parsed };
+  } catch (err) {
+    // Fallback if JSON fails
+    return { responses: [{ agent: 'Supervisor', content: result.text }] };
   }
+}
 }
