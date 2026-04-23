@@ -100,13 +100,13 @@ const LiveSessionPage = ({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typingAgent]);
-
-  useEffect(() => {
-    if (!initiated && agenda) {
-      setInitiated(true);
-      handleAskBoard(agenda);
-    }
-  }, [agenda, initiated]);
+const hasStarted = useRef(false);
+useEffect(() => {
+  if (agenda && !hasStarted.current) {
+    hasStarted.current = true; // updates immediately (no delay)
+    handleAskBoard(agenda);
+  }
+}, [agenda]);
 
   // ─── UPDATED: NESTJS API CALL ───
   const handleAskBoard = async (text: string) => {
@@ -126,24 +126,41 @@ const LiveSessionPage = ({
 
       const data = await response.json();
       setTypingAgent(null);
+if (data.responses && Array.isArray(data.responses)) {
+      for (let i = 0; i < data.responses.length; i++) {
+        const res = data.responses[i];
+        
+        // Define delays: 1st speaker (immediate-ish), 2nd speaker (5s), others (3s)
+        const delay = i === 0 ? 1000 : (i === 1 ? 5000 : 3000);
+        
+        // Show who is "typing" or "speaking"
+        setTypingAgent(res.agent);
+        
+        // Wait for the specific delay
+        await new Promise(resolve => setTimeout(resolve, delay));
 
-      // Handle structured JSON array: [{"agent": "CTO", "content": "..."}]
-      if (data.responses && Array.isArray(data.responses)) {
-        const newMessages = data.responses.map((res: any, idx: number) => ({
-          id: `ai-${Date.now()}-${idx}`,
-          agent: res.agent || "Agent",
-          content: res.content,
-          side: "right" as const,
-        }));
-
-        setMessages((prev) => [...prev, ...newMessages]);
+        // Add this specific message to the feed
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `ai-${Date.now()}-${i}`,
+            agent: res.agent,
+            content: res.content,
+            side: "right" as const,
+          },
+        ]);
+        
+        // Clear typing indicator briefly before next agent starts
+        setTypingAgent(null);
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
-    } catch (err) {
-      console.error(err);
-      setTypingAgent(null);
-      alert("The Board meeting was interrupted. Ensure NestJS backend is running on port 4000.");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setTypingAgent(null);
+    alert("Board meeting interrupted. Ensure backend is running on port 4000.");
+  }
+};
 
   const handleSend = () => {
     const text = userInput.trim();

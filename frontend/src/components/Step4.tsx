@@ -45,8 +45,6 @@ const Step4 = ({ formData, set, back }: Props) => {
      alert("🚀 Simulation Initialized! Onboarding your AI Board members now...");
       
       // ✅ Redirection Logic
-      set({ initialPlan: data.plan, currentView: 'live-session' });
-    
     // 2. The parent component should listen for 'currentView' to switch components
     console.log('AI Startup Plan Received, Redirecting...');
   } catch (error) {
