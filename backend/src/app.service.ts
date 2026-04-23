@@ -3,52 +3,91 @@ import { mastra } from './mastra';
 
 @Injectable()
 export class AppService {
-  // Method for initial Step 4 roadmap
+
+  // ✅ Initial roadmap
   async runStartupSimulation(formData: any) {
     const supervisor = mastra.getAgentById('supervisor');
+
+    const agentsList = (formData?.selectedAgents || []).join(', ');
+
     const prompt = `
-      Initial Simulation for: ${formData.businessName}
-      Problem: ${formData.problemSolving}
-      Constraint: ${formData.constraint}
-      Onboard: ${formData.selectedAgents.join(', ')}
-      Provide a comprehensive initial roadmap.
+      Startup: ${formData?.businessName || "Unknown"}
+      Problem: ${formData?.problemSolving || "Not specified"}
+      Constraint: ${formData?.constraint || "None"}
+      Agents: ${agentsList || "CTO, CFO, CMO"}
+
+      Provide a clear startup roadmap.
     `;
+
     const result = await supervisor.generate(prompt);
+
     return { plan: result.text };
   }
 
-  // Method for Live Session debate
+  // ✅ Live debate
   async handleLiveDebate(message: string, onboardingData: any) {
     const supervisor = mastra.getAgentById('supervisor');
-    
+
+    const agentsList = (onboardingData?.selectedAgents || []).join(', ');
+
     const prompt = `
-      CONTEXT:
-      Business: ${onboardingData.businessName}
-      Constraint: ${onboardingData.constraint}
-      Problem: ${onboardingData.problemSolving}
-      
-      USER INPUT: "${message}"
-      
-      INSTRUCTIONS:
-      1. Initiate a debate between: ${onboardingData.selectedAgents.join(', ')}.
-      2. Each agent provides a critique or suggestion.
-      3. Supervisor provides final summary.
-      
-      RETURN ONLY A JSON ARRAY:
-      [{"agent": "CTO", "content": "..."}, {"agent": "supervisor", "content": "..."}]
-    `;
+CONTEXT:
+Business: ${onboardingData?.businessName || "Unknown"}
+Constraint: ${onboardingData?.constraint || "None"}
+Problem: ${onboardingData?.problemSolving || "Not specified"}
+
+USER MESSAGE:
+"${message}"
+
+TASK:
+Simulate a board discussion between: ${agentsList || "CTO, CFO, CMO"}.
+
+RULES:
+- Each agent gives 1 short response
+- Supervisor gives final summary
+- Keep responses concise
+
+STRICT OUTPUT:
+Return ONLY valid JSON array.
+NO markdown. NO explanation.
+
+FORMAT:
+[
+  { "agent": "CTO", "content": "..." },
+  { "agent": "CFO", "content": "..." },
+  { "agent": "CMO", "content": "..." },
+  { "agent": "Supervisor", "content": "..." }
+]
+`;
 
     const result = await supervisor.generate(prompt);
 
-    // Clean markdown formatting if present
-    const cleanJson = result.text.replace(/```json|```/g, '').trim();
-    
+    console.log("RAW LLM OUTPUT:", result.text);
+
+    // ✅ Clean response
+    const cleanJson = result.text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
+
     try {
-      return { responses: JSON.parse(cleanJson) };
-    } catch (e) {
-      // Fallback if AI fails to return valid JSON array
-      return { 
-        responses: [{ agent: 'Supervisor', content: result.text }] 
+      const parsed = JSON.parse(cleanJson);
+
+      if (Array.isArray(parsed)) {
+        return { responses: parsed };
+      }
+
+      throw new Error("Not an array");
+    } catch (err) {
+      console.error("JSON PARSE FAILED:", cleanJson);
+
+      return {
+        responses: [
+          {
+            agent: 'Supervisor',
+            content: result.text,
+          },
+        ],
       };
     }
   }
