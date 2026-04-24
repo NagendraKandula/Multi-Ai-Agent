@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, BadRequestException } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller('simulation')
@@ -12,9 +12,17 @@ export class AppController {
 
   @Post('message')
   message(@Body() body: any) {
-    return this.appService.handleLiveDebate(
-      body.message,
-      body.onboardingData
-    );
+    const { message, onboardingData } = body;
+
+    // ✅ Validation (IMPORTANT)
+    if (!message) {
+      throw new BadRequestException('message is required');
+    }
+
+    if (!onboardingData) {
+      throw new BadRequestException('onboardingData is required');
+    }
+
+    return this.appService.handleLiveDebate(message, onboardingData);
   }
 }

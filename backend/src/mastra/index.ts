@@ -2,7 +2,7 @@ import { Mastra } from '@mastra/core/mastra';
 import { Agent } from '@mastra/core/agent';
 import { PinoLogger } from '@mastra/loggers';
 import 'dotenv/config';
-// ✅ Use Ollama Cloud via Mastra model router
+
 const model = 'ollama-cloud/qwen3.5:397b';
 
 // ✅ Define Agents
