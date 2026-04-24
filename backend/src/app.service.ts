@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { mastra } from './mastra';
+import { ctoAgent } from './mastra/agents/cto';
+import { cmoAgent } from './mastra/agents/cmo';
+import { cfoAgent } from './mastra/agents/cfo';
+import { supervisorAgent } from './mastra/agents/supervisor';
 
 type Message = {
   agent: string;
@@ -14,147 +17,97 @@ type Round = {
 @Injectable()
 export class AppService {
 
-  async runStartupSimulation(data: any) {
-    return { status: "initialized", data };
-  }
+  async runStartupSimulation(body: any) {
+    const input = body?.message || "Startup idea";
 
-  async handleLiveDebate(message: string, data: any) {
+    let memory = `
+Startup Idea:
+${input}
 
-  const cto = mastra.getAgentById('cto');
-  const cfo = mastra.getAgentById('cfo');
-  const cmo = mastra.getAgentById('cmo');
-  const supervisor = mastra.getAgentById('supervisor');
-
-  const context = `
-Startup: ${data?.businessName || "Unknown"}
-Problem: ${data?.problemSolving || "Not specified"}
-Constraint: ${data?.constraint || "None"}
-User Question: ${message}
+You are in a live boardroom debate.
+CTO, CMO, CFO are discussing aggressively and reacting to each other.
+Keep responses short and conversational.
 `;
 
-  const rounds: Round[] = [];
-  let memory = context;
+    const rounds: Round[] = [];
 
-  try {
-    // 🔁 REAL DEBATE LOOP
+    // 🔁 MULTI-ROUND DEBATE ENGINE (THIS FIXES YOUR ISSUE)
     for (let i = 1; i <= 3; i++) {
 
       const roundMessages: Message[] = [];
 
-      // =====================
-      // CTO
-      // =====================
-      const ctoRes = await cto.generate(`
+      // ================= CTO =================
+      const cto = await ctoAgent.generate(`
 ${memory}
 
-You are in a tense startup board meeting.
-
-- Speak like a real human (not formal)
-- Refer to EXACT previous statements (mention CFO/CMO points)
-- Disagree when needed
-- Use numbers / tradeoffs
-- Max 2–3 short sentences
-
-Do NOT say you lack context.
+You are CTO.
+React to previous discussion.
+Focus on technical feasibility and MVP.
+Be direct and slightly defensive.
 `);
 
-      roundMessages.push({ agent: "CTO", content: ctoRes.text });
-      memory += `\nCTO: ${ctoRes.text}`;
+      roundMessages.push({ agent: "CTO", content: cto.text });
 
-      // =====================
-      // CFO
-      // =====================
-      const cfoRes = await cfo.generate(`
+      memory += `\nCTO: ${cto.text}`;
+
+      // ================= CMO =================
+      const cmo = await cmoAgent.generate(`
 ${memory}
 
-You are a skeptical CFO in a heated discussion.
-
-- Directly challenge CTO’s last statement
-- Ask for numbers, ROI, risks
-- Be slightly aggressive
-- Use budget pressure (₹2L–₹5L constraint)
-- Max 2–3 sharp sentences
-
-No generic advice.
+You are CMO.
+React to CTO and previous debate.
+Focus on growth and user acquisition.
+Challenge slow technical thinking.
 `);
 
-      roundMessages.push({ agent: "CFO", content: cfoRes.text });
-      memory += `\nCFO: ${cfoRes.text}`;
+      roundMessages.push({ agent: "CMO", content: cmo.text });
 
-      // =====================
-      // CMO
-      // =====================
-      const cmoRes = await cmo.generate(`
+      memory += `\nCMO: ${cmo.text}`;
+
+      // ================= CFO =================
+      const cfo = await cfoAgent.generate(`
 ${memory}
 
-You are a bold CMO pushing for growth.
-
-- React to BOTH CTO and CFO
-- Defend growth even if risky
-- Suggest real tactics (campaigns, referrals, pricing)
-- Be persuasive but practical
-- Max 2–3 sentences
-
-Avoid generic marketing talk.
+You are CFO.
+React to CTO and CMO.
+Focus on cost, ROI, and risk.
+Challenge unrealistic ideas.
 `);
 
-      roundMessages.push({ agent: "CMO", content: cmoRes.text });
-      memory += `\nCMO: ${cmoRes.text}`;
+      roundMessages.push({ agent: "CFO", content: cfo.text });
 
-      // 🚫 Prevent repetition explicitly
-      memory += `\nKeep responses short, direct, and conversational. Avoid long explanations.`;
+      memory += `\nCFO: ${cfo.text}`;
 
+      // add round summary
       rounds.push({
         round: i,
         messages: roundMessages,
       });
     }
 
-    // =====================
-    // 🧠 FINAL DECISION
-    // =====================
-    const final = await supervisor.generate(`
+    // ================= FINAL CEO DECISION =================
+    const final = await supervisorAgent.generate(`
 ${memory}
 
-You are the CEO closing the meeting.
-
-- Make a FINAL decision (not summary)
-- Mention:
-  - What we will do
-  - What we will NOT do
-  - Budget allocation
-- Sound decisive and realistic
-- 4–5 sentences max
+You are CEO.
+Now close the meeting with final decision.
+Be decisive, practical, and short.
 `);
 
     rounds.push({
       round: 4,
       messages: [
         {
-          agent: "Supervisor",
+          agent: "CEO",
           content: final.text,
         },
       ],
     });
 
     return { rounds };
-
-  } catch (err) {
-    console.error(err);
-
-    return {
-      rounds: [
-        {
-          round: 1,
-          messages: [
-            {
-              agent: "Supervisor",
-              content: "Something went wrong. Please try again.",
-            },
-          ],
-        },
-      ],
-    };
   }
-}
+
+  async handleLiveDebate(body: any) {
+    return this.runStartupSimulation(body);
+  }
 }

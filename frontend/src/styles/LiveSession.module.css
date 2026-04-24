@@ -683,11 +683,4 @@
     display: none;
   }
 }
-.messageRowCenter {
-  display: flex;
-  justify-content: center;
-  margin: 16px 0;
-  font-weight: 600;
-  color: #9ca3af;
-  font-size: 13px;
-}
+
