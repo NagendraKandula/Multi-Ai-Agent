@@ -1,14 +1,9 @@
 import { Mastra } from '@mastra/core/mastra';
 import { Agent } from '@mastra/core/agent';
-import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
-
-// ✅ Load single API key
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
-const model = groq('llama-3.3-70b-versatile');
+import 'dotenv/config';
+// ✅ Use Ollama Cloud via Mastra model router
+const model = 'ollama-cloud/qwen3.5:397b';
 
 // ✅ Define Agents
 const ctoAgent = new Agent({
