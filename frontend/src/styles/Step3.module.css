@@ -1,5 +1,4 @@
 /* Shared step layout styles – used across Step1–Step4 */
-
 .container {
   display: flex;
   flex-direction: column;
@@ -82,6 +81,9 @@
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .input::placeholder,
@@ -101,6 +103,11 @@
   min-height: 80px;
 }
 
+.select option {
+  background: #ffffff;
+  color: #111827;
+}
+
 .label {
   font-size: 13px;
   color: #374151;
@@ -113,6 +120,34 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.option {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #111827;
+  cursor: pointer;
+  transition: background 0.1s;
+  font-family: inherit;
+}
+
+.option:hover {
+  background: #eff6ff;
+  color: #2563eb;
 }
 
 /* Toggle buttons */
@@ -173,6 +208,11 @@
   background-color: #1f2937;
 }
 
+.primaryBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .secondaryBtn {
   display: inline-flex;
   align-items: center;
@@ -196,4 +236,17 @@
 .secondaryBtn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import styles from "../styles/Step1.module.css";
 import ToggleGroup from "./ToggleGroup";
 
@@ -8,6 +9,43 @@ type Props = {
 };
 
 const Step1 = ({ formData, set, next }: Props) => {
+  const [query, setQuery] = useState(formData.location || "");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  // 🔁 Debounce logic
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (query.length < 2) {
+        setSuggestions([]);
+        return;
+      }
+
+      fetchLocations(query);
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [query]);
+
+  // 🌍 Fetch from OpenStreetMap (Nominatim)
+  const fetchLocations = async (search: string) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${search}`,
+        {
+          headers: {
+            "User-Agent": "startup-form-app",
+          },
+        }
+      );
+      const data = await res.json();
+      setSuggestions(data.slice(0, 5));
+      setShowDropdown(true);
+    } catch (err) {
+      console.error("Location fetch error:", err);
+    }
+  };
+
   return (
     <div className={styles.container}>
       
@@ -28,6 +66,7 @@ const Step1 = ({ formData, set, next }: Props) => {
             <h3 className={styles.sectionHeader}>Basic Information</h3>
 
             <div className={styles.grid}>
+              {/* Business Name */}
               <input
                 className={styles.input}
                 placeholder="Business Name"
@@ -35,13 +74,48 @@ const Step1 = ({ formData, set, next }: Props) => {
                 onChange={(e) => set({ businessName: e.target.value })}
               />
 
-              <input
-  className={styles.input}
-  placeholder="Location (e.g., Visakhapatnam, India)"
-  value={formData.location}
-  onChange={(e) => set({ location: e.target.value })}
-/>
+              {/* Location */}
+              <div style={{ position: "relative" }}>
+                <input
+                  className={styles.input}
+                  placeholder="Location"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    set({ location: e.target.value });
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                />
 
+                {showDropdown && suggestions.length > 0 && (
+                  <div className={styles.dropdown}>
+                    {suggestions.map((item, index) => (
+                      <div
+                        key={index}
+                        className={styles.option}
+                        onClick={() => {
+                          setQuery(item.display_name);
+                          set({ location: item.display_name });
+                          setShowDropdown(false);
+                        }}
+                      >
+                        {item.display_name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Founder Name ✅ NEW */}
+              <input
+                className={styles.input}
+                placeholder="Founder / Co-founders"
+                value={formData.founderName || ""}
+                onChange={(e) => set({ founderName: e.target.value })}
+              />
+
+              {/* Budget */}
               <input
                 className={styles.input}
                 placeholder="Budget Range"
@@ -49,12 +123,29 @@ const Step1 = ({ formData, set, next }: Props) => {
                 onChange={(e) => set({ budgetRange: e.target.value })}
               />
 
+              {/* Target Market */}
               <input
                 className={styles.input}
                 placeholder="Target Market"
                 value={formData.targetMarket}
                 onChange={(e) => set({ targetMarket: e.target.value })}
               />
+
+              {/* Team Size ✅ NEW */}
+              <select
+                className={styles.select}
+                value={formData.teamSize || ""}
+                onChange={(e) => set({ teamSize: e.target.value })}
+              >
+                <option value="" disabled>
+                  Team Size
+                </option>
+                {["Solo", "2-5", "6-10", "10+"].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Business Type */}
@@ -64,10 +155,10 @@ const Step1 = ({ formData, set, next }: Props) => {
               </label>
 
               <ToggleGroup
-  value={formData.businessType}
-  options={["Tech", "Non Tech", "Both", "Not Sure"]}
-  onChange={(val) => set({ businessType: val })}
-/>
+                value={formData.businessType}
+                options={["Tech", "Non Tech", "Both", "Not Sure"]}
+                onChange={(val) => set({ businessType: val })}
+              />
             </div>
           </div>
 
