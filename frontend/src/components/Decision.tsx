@@ -1,106 +1,104 @@
+import { useEffect, useState } from "react";
 import styles from "../styles/Decision.module.css";
 
+interface ExecutionPlan {
+  marketResearch: string;
+  mvpPlan: string;
+  gtmStrategy: string;
+}
+
 const Decision = () => {
+  const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState<ExecutionPlan | null>(null);
+
+  const onboardingData = JSON.parse(localStorage.getItem("onboardingData") || "{}");
+  const bizName = onboardingData.businessName || "Your Startup";
+  const finalDecision = localStorage.getItem("finalSupervisorDecision") || "Proceed with standard launch protocol.";
+
+  useEffect(() => {
+    const fetchExecutionTasks = async () => {
+      try {
+        const res = await fetch("http://localhost:4000/simulation/execute-tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            onboardingData, 
+            finalDecision 
+          }),
+        });
+        const data = await res.json();
+        setPlan(data);
+      } catch (err) {
+        console.error("Failed to generate tasks", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExecutionTasks();
+  }, [finalDecision]);
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Synthesizing Execution Plan...</h1>
+          <p className={styles.subtitle}>Our AI specialists are writing your Market, MVP, and GTM strategies.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       
       {/* Header */}
       <div className={styles.header}>
-        <h1 className={styles.title}>Decision Summary</h1>
-        <p className={styles.subtitle}>
-          Milk Delivery Service - location
-        </p>
+        <h1 className={styles.title}>Execution Summary</h1>
+        <p className={styles.subtitle}>{bizName} - Strategic Alignment</p>
       </div>
 
       {/* Card */}
       <div className={styles.card}>
 
-        <h2 className={styles.sectionTitle}>Final Recommendation</h2>
-
+        <h2 className={styles.sectionTitle}>Board Directive</h2>
         <p className={styles.agenda}>
-          <strong>Agenda:</strong> how do we price for each delivery?
+          <strong>Supervisor's Final Call:</strong> {finalDecision}
         </p>
 
-        {/* Strength + Concerns */}
-        <div className={styles.grid}>
+        {/* Execution Tasks */}
+        <div className={styles.grid} style={{ gridTemplateColumns: "1fr", gap: "2rem" }}>
 
-          {/* Strength */}
           <div>
-            <h3 className={styles.subHeading}>Strength</h3>
-            <ul className={styles.list}>
-              <li>
-                <span className={styles.check}>✓</span>
-                Clear pricing structure based on distance and delivery frequency
-              </li>
-              <li>
-                <span className={styles.check}>✓</span>
-                Competitive analysis shows our pricing is 15% lower than competitors
-              </li>
-              <li>
-                <span className={styles.check}>✓</span>
-                Subscription model provides predictable revenue streams
-              </li>
-            </ul>
+            <h3 className={styles.subHeading}>Market Research</h3>
+            <div style={{ whiteSpace: "pre-wrap", color: "#334155", lineHeight: "1.6" }}>
+              {plan?.marketResearch}
+            </div>
           </div>
 
-          {/* Concerns */}
           <div>
-            <h3 className={styles.subHeading}>Concerns</h3>
-            <ul className={styles.list}>
-              <li>
-                <span className={styles.warn}>○</span>
-                Fuel costs may fluctuate significantly affecting profit margins
-              </li>
-              <li>
-                <span className={styles.warn}>○</span>
-                Need to test customer willingness to pay premium for same-day delivery
-              </li>
-              <li>
-                <span className={styles.warn}>○</span>
-                Minimum order requirements might deter smaller customers
-              </li>
-            </ul>
+            <h3 className={styles.subHeading}>MVP Planning</h3>
+            <div style={{ whiteSpace: "pre-wrap", color: "#334155", lineHeight: "1.6" }}>
+              {plan?.mvpPlan}
+            </div>
           </div>
 
         </div>
 
         {/* Action Plan */}
-        <div className={styles.actionSection}>
-          <h3 className={styles.subHeading}>Action Plan</h3>
-
-          <ul className={styles.actionList}>
-            <li>
-              <span className={styles.step}>1</span>
-              Launch pilot pricing program in one neighborhood to validate customer acceptance
-            </li>
-            <li>
-              <span className={styles.step}>2</span>
-              Implement dynamic pricing algorithm that adjusts based on fuel costs
-            </li>
-            <li>
-              <span className={styles.step}>3</span>
-              Create tiered subscription plans to accommodate different customer segments
-            </li>
-            <li>
-              <span className={styles.step}>4</span>
-              Set up quarterly pricing reviews to ensure competitiveness and profitability
-            </li>
-          </ul>
+        <div className={styles.actionSection} style={{ marginTop: "2rem" }}>
+          <h3 className={styles.subHeading}>Go-To-Market (GTM) Strategy</h3>
+          <div style={{ whiteSpace: "pre-wrap", color: "#334155", lineHeight: "1.6" }}>
+              {plan?.gtmStrategy}
+          </div>
         </div>
 
         {/* Footer */}
         <div className={styles.footer}>
-
-          <div className={styles.score}>
-            Overall Score: <strong>8.9</strong>
-          </div>
-
           <div className={styles.actions}>
-            <button className={styles.primaryBtn}>Approve Plan</button>
-            <button className={styles.secondaryBtn}>Request changes</button>
-            <button className={styles.ghostBtn}>Export as PDF</button>
+            <button className={styles.primaryBtn}>Export Plan</button>
+            <button className={styles.secondaryBtn}>Review Board Debate</button>
           </div>
-
         </div>
 
       </div>

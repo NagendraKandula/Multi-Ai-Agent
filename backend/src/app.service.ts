@@ -11,18 +11,26 @@ type Round = {
   messages: Message[];
 };
 
-// Utility: shuffle an array randomly
+// Utility: shuffle array
 function shuffleArray<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
 @Injectable()
 export class AppService {
+
+  // =========================
+  // INIT SIMULATION
+  // =========================
   async runStartupSimulation(data: any) {
     return { status: 'initialized', data };
   }
 
+  // =========================
+  // LIVE DEBATE (MAIN FEATURE)
+  // =========================
   async handleLiveDebate(message: string, data: any) {
+
     const cto = mastra.getAgentById('cto');
     const cfo = mastra.getAgentById('cfo');
     const cmo = mastra.getAgentById('cmo');
@@ -39,146 +47,198 @@ User Question: ${message}
     const rounds: Round[] = [];
 
     try {
-      // =====================
-      // 🔁 ROUND 1 — Fixed order: CTO → CFO → CMO
-      // =====================
-      const round1Messages: Message[] = [];
 
-      const ctoRes1 = await cto.generate(`
+      // =====================
+      // ROUND 1 (STRUCTURED)
+      // =====================
+      const round1: Message[] = [];
+
+      const ctoRes = await cto.generate(`
 ${memory}
-You are in a tense startup board meeting. Round 1 — open your position.
-- Speak like a real human (not formal)
-- State your stance on the topic clearly
-- Use numbers / tradeoffs where possible
-- Max 2–3 short sentences
-Do NOT say you lack context.
+You are CTO in a real startup meeting.
+- Give your stance clearly
+- Mention tradeoffs / tech decisions
+- 2 short sentences max
 `);
-      round1Messages.push({ agent: 'CTO', content: ctoRes1.text });
-      memory += `\nCTO: ${ctoRes1.text}`;
+      round1.push({ agent: 'CTO', content: ctoRes.text });
+      memory += `\nCTO: ${ctoRes.text}`;
 
-      const cfoRes1 = await cfo.generate(`
+      const cfoRes = await cfo.generate(`
 ${memory}
-You are a skeptical CFO in a heated discussion. Round 1 — challenge the CTO.
-- Directly challenge CTO's last statement
-- Ask for numbers, ROI, risks
-- Be slightly aggressive
-- Use budget pressure (₹2L–₹5L constraint)
-- Max 2–3 sharp sentences
-No generic advice.
+You are CFO.
+- Challenge CTO with cost / ROI concerns
+- Be sharp and slightly aggressive
+- 2 sentences max
 `);
-      round1Messages.push({ agent: 'CFO', content: cfoRes1.text });
-      memory += `\nCFO: ${cfoRes1.text}`;
+      round1.push({ agent: 'CFO', content: cfoRes.text });
+      memory += `\nCFO: ${cfoRes.text}`;
 
-      const cmoRes1 = await cmo.generate(`
+      const cmoRes = await cmo.generate(`
 ${memory}
-You are a bold CMO pushing for growth. Round 1 — react to both CTO and CFO.
-- React to BOTH CTO and CFO's points
-- Defend growth even if risky
-- Suggest real tactics (campaigns, referrals, pricing)
-- Be persuasive but practical
-- Max 2–3 sentences
-Avoid generic marketing talk.
+You are CMO.
+- React to BOTH CTO & CFO
+- Push growth strategy
+- Suggest 1 real tactic
+- 2 sentences max
 `);
-      round1Messages.push({ agent: 'CMO', content: cmoRes1.text });
-      memory += `\nCMO: ${cmoRes1.text}`;
-      memory += `\nKeep responses short, direct, and conversational. Avoid long explanations.`;
+      round1.push({ agent: 'CMO', content: cmoRes.text });
+      memory += `\nCMO: ${cmoRes.text}`;
 
-      rounds.push({ round: 1, messages: round1Messages });
+      rounds.push({ round: 1, messages: round1 });
 
       // =====================
-      // 🔀 ROUND 2 — Random order: all 3 agents debate freely
+      // ROUND 2 (DYNAMIC)
       // =====================
-      const round2Messages: Message[] = [];
+      const round2: Message[] = [];
 
-      const agentOrder = shuffleArray([
+      const agents = shuffleArray([
         {
           label: 'CTO',
           agent: cto,
-          prompt: (mem: string) => `
-${mem}
-You are in Round 2 of a heated board debate.
-- Directly respond to the LAST thing said
-- Push back hard or double down on your position
-- Reference specific numbers or risks mentioned
-- Max 2–3 sentences. Be blunt.
+          prompt: (m: string) => `
+${m}
+Respond to last speaker.
+- Defend or counter strongly
+- Be practical
+- 2 sentences max
 `,
         },
         {
           label: 'CFO',
           agent: cfo,
-          prompt: (mem: string) => `
-${mem}
-You are in Round 2 of a heated board debate.
-- Challenge whoever spoke last
-- Keep pressing on budget, ROI, or risk
-- Be aggressive but concise
-- Max 2–3 sentences. No fluff.
+          prompt: (m: string) => `
+${m}
+Push on risks / costs again.
+- Question assumptions
+- Be direct
+- 2 sentences max
 `,
         },
         {
           label: 'CMO',
           agent: cmo,
-          prompt: (mem: string) => `
-${mem}
-You are in Round 2 of a heated board debate.
-- Respond to the latest points from the other executives
-- Defend the growth angle with a specific tactic
-- Be bold and persuasive
-- Max 2–3 sentences. Avoid vague claims.
+          prompt: (m: string) => `
+${m}
+Defend growth.
+- Add one actionable idea
+- Be persuasive
+- 2 sentences max
 `,
         },
       ]);
 
-      for (const { agent, label, prompt } of agentOrder) {
-        const res = await agent.generate(prompt(memory));
-        round2Messages.push({ agent: label, content: res.text });
-        memory += `\n${label}: ${res.text}`;
+      for (const a of agents) {
+        const res = await a.agent.generate(a.prompt(memory));
+        round2.push({ agent: a.label, content: res.text });
+        memory += `\n${a.label}: ${res.text}`;
       }
 
-      memory += `\nKeep responses short, direct, and conversational. Avoid long explanations.`;
-      rounds.push({ round: 2, messages: round2Messages });
+      rounds.push({ round: 2, messages: round2 });
 
       // =====================
-      // 🧠 ROUND 3 — Supervisor final decision only
+      // ROUND 3 (FINAL DECISION)
       // =====================
       const final = await supervisor.generate(`
 ${memory}
-You are the CEO closing the meeting.
-- Make a FINAL decision (not a summary)
-- Mention:
-  - What we will do
-  - What we will NOT do
-  - Budget allocation
-- Sound decisive and realistic
-- 4–5 sentences max
+You are CEO.
+
+Make FINAL decision:
+- What we WILL do
+- What we will NOT do
+- Budget split
+- Keep it practical
+
+Max 4 sentences.
 `);
+
+      const finalDecision = final.text;
 
       rounds.push({
         round: 3,
-        messages: [
-          {
-            agent: 'Supervisor',
-            content: final.text,
-          },
-        ],
+        messages: [{ agent: 'Supervisor', content: finalDecision }],
       });
 
-      return { rounds };
+      // =========================
+      // AUTO EXECUTION (NEW 🔥)
+      // =========================
+      const execution = await this.executeTaskPlan(data, finalDecision);
+
+      return {
+        rounds,
+        execution, // ✅ added
+      };
+
     } catch (err) {
       console.error(err);
+
       return {
         rounds: [
           {
             round: 1,
             messages: [
               {
-                agent: 'Supervisor',
-                content: 'Something went wrong. Please try again.',
+                agent: 'System',
+                content: 'Something went wrong. Try again.',
               },
             ],
           },
         ],
       };
     }
+  }
+
+  // =========================
+  // EXECUTION ENGINE (AGENTS)
+  // =========================
+  async executeTaskPlan(onboardingData: any, finalDecision: string) {
+
+    const prompt = `
+Startup Profile:
+${JSON.stringify(onboardingData, null, 2)}
+
+Final Decision:
+${finalDecision}
+
+Generate execution plan.
+`;
+
+    const marketAgent = mastra.getAgentById('marketResearcher');
+    const mvpAgent = mastra.getAgentById('mvpPlanner');
+    const gtmAgent = mastra.getAgentById('gtmStrategist');
+
+    const [market, mvp, gtm] = await Promise.all([
+      marketAgent.generate(`
+${prompt}
+Give:
+- Target users
+- Competitor insight
+- Demand validation
+Short bullets only.
+`),
+
+      mvpAgent.generate(`
+${prompt}
+Give:
+- MVP features
+- Tech stack
+- Timeline
+Keep it practical.
+`),
+
+      gtmAgent.generate(`
+${prompt}
+Give:
+- Launch plan
+- Channels
+- Growth hacks
+Keep it actionable.
+`),
+    ]);
+
+    return {
+      marketResearch: market.text,
+      mvpPlan: mvp.text,
+      gtmStrategy: gtm.text,
+    };
   }
 }

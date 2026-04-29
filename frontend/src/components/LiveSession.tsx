@@ -158,12 +158,13 @@ const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void 
   }, [isPaused]);
 
   // Initial prompt — fires only once
-  useEffect(() => {
+useEffect(() => {
     if (hasStarted.current) return;
     hasStarted.current = true;
     handleAskBoard(agenda);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60).toString().padStart(2, "0");
     const sec = (s % 60).toString().padStart(2, "0");

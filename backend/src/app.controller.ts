@@ -17,4 +17,11 @@ export class AppController {
       body.onboardingData
     );
   }
+  @Post('execute-tasks')
+  executeTasks(@Body() body: any) {
+    return this.appService.executeTaskPlan(
+      body.onboardingData,
+      body.finalDecision
+    );
+  }
 }
