@@ -1,56 +1,44 @@
+import { useState } from "react";
 import styles from "../styles/Step4.module.css";
 import {
-  Code, Megaphone, Calculator, Scale, Package, Settings, TrendingUp,
+  Code,
+  Megaphone,
+  Calculator,
+  Scale,
+  Package,
+  Settings,
+  TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
+
 type Props = {
   formData: any;
   set: (data: any) => void;
   back: () => void;
+  goLive: () => void; // Function to transition to the live simulation view
 };
 
+// Data for Tech-focused businesses
 const techAgents = [
   { id: "CTO", icon: Code, title: "CTO", subtitle: "Tech & Product" },
   { id: "CMO", icon: Megaphone, title: "CMO", subtitle: "Marketing & Growth" },
   { id: "CFO", icon: Calculator, title: "CFO", subtitle: "Finance & Strategy" },
   { id: "CPO", icon: Package, title: "CPO", subtitle: "Chief Product Officer" },
   { id: "Legal", icon: Scale, title: "Legal & Compliance", subtitle: "Legal & Regulations" },
-  { id: "COO", icon: Settings, title: "COO", subtitle: "Operations & Efficiency" },
-  { id: "CSO", icon: TrendingUp, title: "CSO", subtitle: "Sales & Partnerships" },
 ];
 
+// Data for Non-Tech focused businesses
 const nonTechAgents = [
   { id: "COO", icon: Settings, title: "COO", subtitle: "Chief Operating Officer" },
   { id: "CMO", icon: Megaphone, title: "CMO", subtitle: "Chief Marketing Officer" },
   { id: "CFO", icon: Calculator, title: "CFO", subtitle: "Chief Financial Officer" },
   { id: "Legal", icon: Scale, title: "Legal & Compliance", subtitle: "Legal & Regulations" },
   { id: "CSO", icon: TrendingUp, title: "CSO", subtitle: "Chief Sales Officer" },
-  { id: "CTO", icon: Code, title: "CTO", subtitle: "Technical Advisor" },
 ];
 
-const Step4 = ({ formData, set, back }: Props) => {
+const Step4 = ({ formData, set, back, goLive }: Props) => {
   const [isLaunching, setIsLaunching] = useState(false);
-    const handleStartSimulation = async () => {
-      setIsLaunching(true);
-    try {
-      const response = await fetch('http://localhost:4000/simulation/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
 
-      if (!response.ok) throw new Error('Simulation failed');
-
-      const data = await response.json();
-     alert("🚀 Simulation Initialized! Onboarding your AI Board members now...");
-      
-      // ✅ Redirection Logic
-    // 2. The parent component should listen for 'currentView' to switch components
-    console.log('AI Startup Plan Received, Redirecting...');
-  } catch (error) {
-    console.error('Error starting simulation:', error);
-  }
-};
+  // Logic to determine which agent list to show based on previous steps
   const effectiveBizType =
     formData.businessType === "Not Sure" && formData.classifiedBusinessType
       ? formData.classifiedBusinessType
@@ -59,39 +47,47 @@ const Step4 = ({ formData, set, back }: Props) => {
   const agents = effectiveBizType === "Non Tech" ? nonTechAgents : techAgents;
 
   const toggleAgent = (id: string) => {
-    const exists = (formData.selectedAgents || []).includes(id);
+    const currentAgents = formData.selectedAgents || [];
+    const exists = currentAgents.includes(id);
+    
     set({
       selectedAgents: exists
-        ? formData.selectedAgents.filter((a: string) => a !== id)
-        : [...(formData.selectedAgents || []), id],
+        ? currentAgents.filter((a: string) => a !== id)
+        : [...currentAgents, id],
     });
+  };
+
+  const handleStartSimulation = async () => {
+    setIsLaunching(true);
+
+    try {
+      // 1. Send data to your backend
+      await fetch("http://localhost:4000/simulation/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      // 2. Persist to local storage for session recovery
+      localStorage.setItem("onboardingData", JSON.stringify(formData));
+
+      // 3. Trigger the app's "Live" state
+      goLive(); 
+    } catch (err) {
+      console.error("Failed to start simulation:", err);
+      // Optional: Add a toast notification or error state here
+    } finally {
+      setIsLaunching(false);
+    }
   };
 
   const sliderLabel = (val: number) =>
     val >= 66 ? "High" : val >= 33 ? "Medium" : "Low";
 
   const sliders = [
-    {
-      label: "Speed to Launch",
-      field: "speedToLaunch",
-      iconBg: "#fff7ed",
-      iconColor: "#f97316",
-      emoji: "🚀",
-    },
-    {
-      label: "Product Quality",
-      field: "productQuality",
-      iconBg: "#fefce8",
-      iconColor: "#eab308",
-      emoji: "⭐",
-    },
-    {
-      label: "Cost Efficiency",
-      field: "costEfficiency",
-      iconBg: "#f0fdf4",
-      iconColor: "#22c55e",
-      emoji: "💵",
-    },
+    { label: "Speed to Launch", field: "speedToLaunch", iconBg: "#fff7ed", iconColor: "#f97316", emoji: "🚀" },
+    { label: "Product Quality", field: "productQuality", iconBg: "#fefce8", iconColor: "#eab308", emoji: "⭐" },
+    { label: "Cost Efficiency", field: "costEfficiency", iconBg: "#f0fdf4", iconColor: "#22c55e", emoji: "💵" },
   ];
 
   return (
@@ -103,8 +99,8 @@ const Step4 = ({ formData, set, back }: Props) => {
 
       <div className={styles.card}>
         <div className={styles.cardContent}>
-
-          {/* Sliders */}
+          
+          {/* Priority Sliders */}
           <div className={styles.section}>
             <h3 className={styles.sectionHeader}>What Matters Most?</h3>
             <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 8px 0" }}>
@@ -123,17 +119,17 @@ const Step4 = ({ formData, set, back }: Props) => {
                   <div style={{ flex: 1 }}>
                     <div className={styles.sliderHeader}>
                       <span>{label}</span>
-                      <span className={styles.sliderValue}>{sliderLabel(formData[field])}</span>
+                      <span className={styles.sliderValue}>{sliderLabel(formData[field] || 50)}</span>
                     </div>
                     <input
                       type="range"
                       min={0}
                       max={100}
-                      value={formData[field]}
+                      value={formData[field] || 50}
                       onChange={(e) => set({ [field]: parseInt(e.target.value) })}
                       className={styles.slider}
                       style={{
-                        background: `linear-gradient(to right, #2563eb 0%, #2563eb ${formData[field]}%, #e5e7eb ${formData[field]}%, #e5e7eb 100%)`,
+                        background: `linear-gradient(to right, #2563eb 0%, #2563eb ${formData[field] || 50}%, #e5e7eb ${formData[field] || 50}%, #e5e7eb 100%)`,
                       }}
                     />
                   </div>
@@ -142,13 +138,14 @@ const Step4 = ({ formData, set, back }: Props) => {
             ))}
           </div>
 
-          {/* Constraint */}
+          {/* Constraints Toggle */}
           <div className={styles.section}>
             <label className={styles.label}>What's Your Biggest Constraint?</label>
             <div className={styles.toggleGroup}>
               {["Budget", "Time", "Team", "Market Competition"].map((t) => (
                 <button
                   key={t}
+                  type="button"
                   onClick={() => set({ constraint: t })}
                   className={`${styles.toggle} ${
                     formData.constraint === t ? styles.toggleActive : styles.toggleInactive
@@ -160,18 +157,18 @@ const Step4 = ({ formData, set, back }: Props) => {
             </div>
           </div>
 
-          {/* Dropdowns */}
+          {/* Dropdown Grid */}
           <div className={styles.section}>
             <div className={styles.grid}>
               <div>
                 <label className={styles.label}>Risk Appetite</label>
                 <select
                   className={styles.select}
-                  value={formData.riskAppetite}
+                  value={formData.riskAppetite || "Medium - Balanced Risk"}
                   onChange={(e) => set({ riskAppetite: e.target.value })}
                 >
                   {["Low - Conservative", "Medium - Balanced Risk", "High - Aggressive"].map((v) => (
-                    <option key={v}>{v}</option>
+                    <option key={v} value={v}>{v}</option>
                   ))}
                 </select>
               </div>
@@ -179,31 +176,18 @@ const Step4 = ({ formData, set, back }: Props) => {
                 <label className={styles.label}>Founder Experience</label>
                 <select
                   className={styles.select}
-                  value={formData.founderExperience}
+                  value={formData.founderExperience || "Intermediate"}
                   onChange={(e) => set({ founderExperience: e.target.value })}
                 >
                   {["Beginner", "Intermediate", "Expert"].map((v) => (
-                    <option key={v}>{v}</option>
+                    <option key={v} value={v}>{v}</option>
                   ))}
                 </select>
               </div>
             </div>
-
-            <div>
-              <label className={styles.label}>Success Metric</label>
-              <select
-                className={styles.select}
-                value={formData.successMetric}
-                onChange={(e) => set({ successMetric: e.target.value })}
-              >
-                {["Monthly Revenue", "User Count", "Profit Margin", "Market Share"].map((v) => (
-                  <option key={v}>{v}</option>
-                ))}
-              </select>
-            </div>
           </div>
 
-          {/* AI Agents */}
+          {/* AI Agents Grid */}
           <div className={styles.section}>
             <h3 className={styles.sectionHeader}>Select Your AI Agents</h3>
             <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 4px 0" }}>
@@ -249,9 +233,15 @@ const Step4 = ({ formData, set, back }: Props) => {
       </div>
 
       <div className={styles.footer}>
-        <button className={styles.secondaryBtn} onClick={back}>← Back</button>
-        <button className={styles.primaryBtn} onClick={handleStartSimulation} disabled={isLaunching}>
-          {isLaunching ? "Onboarding Agents..." : "Start Simulation →"}
+        <button className={styles.secondaryBtn} onClick={back}>
+          ← Back
+        </button>
+        <button 
+          className={styles.primaryBtn} 
+          onClick={handleStartSimulation} 
+          disabled={isLaunching}
+        >
+          {isLaunching ? "Launching..." : "Start Simulation →"}
         </button>
       </div>
     </div>
