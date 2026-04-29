@@ -3,7 +3,7 @@ import { Agent } from '@mastra/core/agent';
 import { PinoLogger } from '@mastra/loggers';
 import 'dotenv/config';
 
-const model = 'ollama-cloud/qwen3.5:397b';
+const model = 'ollama-cloud/qwen3-next:80b';
 
 // ✅ Define Agents
 const ctoAgent = new Agent({

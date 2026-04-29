@@ -171,17 +171,21 @@ const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void 
   };
 
   const handleAskBoard = async (text: string) => {
+    
     if (isPaused) return;
     setIsLaunching(true);
     try {
       const res = await fetch("http://localhost:4000/simulation/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, data: onboardingData }),
+        body: JSON.stringify({ message: text, onboardingData })
       });
 
       const data = await res.json();
-
+      if (!res.ok || !data?.rounds) {
+  console.error("Bad response:", data);
+  return;
+}
       for (const round of data.rounds as Round[]) {
         for (const msg of round.messages) {
           setTypingAgent(msg.agent);
