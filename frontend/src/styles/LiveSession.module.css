@@ -1,12 +1,19 @@
 /* =========================================
    AGENDA / LIVE SESSION — matches Step1–4 theme
    ========================================= */
+/* Theme: Minimal calm • Creamy bg • Orange accent • Soft borders */
 
 /* ── Agenda Entry Page ── */
 .agendaPage {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: #fdfdfb;
+  color: #2d2d2d;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 32px 24px 48px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 .agendaHeader {
@@ -17,23 +24,25 @@
 
 .agendaTitle {
   font-size: 24px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 600;
+  color: #2d2d2d;
   margin: 0;
+  letter-spacing: -0.3px;
 }
 
 .agendaSubtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: #7a7a7a;
   margin: 0;
+  line-height: 1.5;
 }
 
 /* Card */
 .agendaCard {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -43,39 +52,40 @@
 .agendaCardTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #2563eb;
+  color: #2d2d2d;
   margin: 0;
 }
 
 .agendaQuestion {
   font-size: 13px;
-  color: #374151;
+  color: #6b6b6b;
   margin: 0;
 }
 
 .agendaTextarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   font-size: 13px;
-  color: #111827;
+  color: #2d2d2d;
   background: #ffffff;
   box-sizing: border-box;
   outline: none;
-  resize: none;
+  resize: vertical;
   min-height: 100px;
+  line-height: 1.5;
   transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
 }
 
 .agendaTextarea::placeholder {
-  color: #9ca3af;
+  color: #9a9a9a;
 }
 
 .agendaTextarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #f7931e;
+  box-shadow: 0 0 0 3px rgba(247, 147, 30, 0.1);
 }
 
 .startBtn {
@@ -83,7 +93,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #111827;
+  background-color: #f7931e;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -91,27 +101,29 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, transform 0.1s;
   font-family: inherit;
   width: 100%;
 }
 
 .startBtn:hover:not(:disabled) {
-  background-color: #1f2937;
+  background-color: #e6851a;
+  transform: translateY(-1px);
 }
 
 .startBtn:disabled {
-  background-color: #9ca3af;
+  background-color: #d4d4d4;
   cursor: not-allowed;
   opacity: 0.7;
+  transform: none;
 }
 
 /* ── Previous Sessions ── */
 .sessionsCard {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -127,13 +139,13 @@
 .sessionsTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #2563eb;
+  color: #2d2d2d;
   margin: 0;
 }
 
 .clearBtn {
   font-size: 12px;
-  color: #6b7280;
+  color: #7a7a7a;
   background: none;
   border: none;
   cursor: pointer;
@@ -158,7 +170,7 @@
   align-items: flex-start;
   padding: 12px 14px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -166,8 +178,8 @@
 }
 
 .sessionItem:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: #f7931e;
+  background: rgba(247, 147, 30, 0.06);
 }
 
 .sessionInfo {
@@ -181,7 +193,7 @@
 .sessionAgenda {
   font-size: 13px;
   font-weight: 500;
-  color: #111827;
+  color: #2d2d2d;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -189,13 +201,13 @@
 
 .sessionMeta {
   font-size: 12px;
-  color: #6b7280;
+  color: #7a7a7a;
 }
 
 .sessionResume {
   font-size: 12px;
   font-weight: 500;
-  color: #2563eb;
+  color: #f7931e;
   white-space: nowrap;
   flex-shrink: 0;
   align-self: center;
@@ -203,7 +215,7 @@
 
 .emptyState {
   font-size: 13px;
-  color: #9ca3af;
+  color: #9a9a9a;
   text-align: center;
   padding: 12px 0;
 }
@@ -215,7 +227,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #ffffff;
+  background: #fdfdfb;
   font-family: inherit;
 }
 
@@ -226,10 +238,9 @@
   align-items: center;
   padding: 10px 20px;
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #eaeaea;
   top: 0;
   z-index: 50;
-
 }
 
 .topBarLeft {
@@ -244,7 +255,7 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #111827;
+  color: #2d2d2d;
 }
 
 .liveDot {
@@ -264,7 +275,7 @@
 .timer {
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
+  color: #7a7a7a;
   font-variant-numeric: tabular-nums;
 }
 
@@ -278,19 +289,20 @@
   align-items: center;
   gap: 6px;
   background-color: #ffffff;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  color: #5a5a5a;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   padding: 7px 14px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
   font-family: inherit;
 }
 
 .topBtn:hover:not(:disabled) {
-  background-color: #f9fafb;
+  background-color: #fafafa;
+  border-color: #d0d0d0;
 }
 
 .topBtn:disabled {
@@ -314,13 +326,13 @@
   overflow-y: auto;
   padding: 20px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  scrollbar-color: rgba(154, 154, 154, 0.4) transparent;
 }
 
 .chatScroll::-webkit-scrollbar { width: 5px; }
 .chatScroll::-webkit-scrollbar-track { background: transparent; }
 .chatScroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(154, 154, 154, 0.4);
   border-radius: 9999px;
 }
 
@@ -358,7 +370,7 @@
 .agentName {
   font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: #7a7a7a;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -366,21 +378,22 @@
 .bubble {
   padding: 10px 14px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   word-wrap: break-word;
 }
 
 .agentBubble {
-  background: #f3f4f6;
-  color: #111827;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #2d2d2d;
+  border: 1px solid #eaeaea;
   border-bottom-left-radius: 4px;
 }
 
 .userBubble {
-  background: #111827;
+  background: #2d2d2d; /* Soft dark for readability */
   color: #ffffff;
+  border: none;
   border-bottom-right-radius: 4px;
 }
 
@@ -390,8 +403,8 @@
   gap: 4px;
   padding: 10px 14px;
   align-items: center;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
   border-radius: 12px;
   border-bottom-left-radius: 4px;
   width: fit-content;
@@ -400,7 +413,7 @@
 .dot {
   width: 6px;
   height: 6px;
-  background: #9ca3af;
+  background: #9a9a9a;
   border-radius: 50%;
   animation: bounce 1.4s infinite both;
 }
@@ -417,7 +430,7 @@
 .inputBarWrap {
   padding: 12px 20px;
   background: #ffffff;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #eaeaea;
   margin-bottom: -10px;
 }
 
@@ -432,26 +445,26 @@
 .chatInput {
   flex: 1;
   padding: 9px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   font-size: 13px;
-  color: #111827;
+  color: #2d2d2d;
   background: #ffffff;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
 }
 
-.chatInput::placeholder { color: #9ca3af; }
+.chatInput::placeholder { color: #9a9a9a; }
 
 .chatInput:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #f7931e;
+  box-shadow: 0 0 0 3px rgba(247, 147, 30, 0.1);
 }
 
 .chatInput:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
+  background: #f5f5f5;
+  color: #9a9a9a;
   cursor: not-allowed;
 }
 
@@ -459,7 +472,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #111827;
+  background-color: #f7931e;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -467,23 +480,26 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, transform 0.1s;
   font-family: inherit;
   white-space: nowrap;
 }
 
 .sendBtn:hover:not(:disabled) {
-  background-color: #1f2937;
+  background-color: #e6851a;
+  transform: translateY(-1px);
 }
 
 .sendBtn:disabled {
-  background-color: #9ca3af;
+  background-color: #d4d4d4;
   cursor: not-allowed;
   opacity: 0.7;
+  transform: none;
 }
 
 /* ── Responsive ── */
 @media (max-width: 600px) {
+  .agendaPage, .livePage { padding: 24px 16px; }
   .topBar { padding: 8px 14px; }
   .topBtn { padding: 6px 10px; font-size: 12px; }
   .chatScroll { padding: 14px; }

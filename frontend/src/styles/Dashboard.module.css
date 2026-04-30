@@ -1,160 +1,285 @@
+/* ─── Dashboard.module.css ─────────────────────────────────────────────────── */
+/* Minimal, calm, eye-friendly light theme */
+
 .dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  /* ─── Minimal Tokens ───────────────────────────────────── */
+  --bg:        #fdfdfb;        /* Warm creamy white */
+  --surface:   #ffffff;        /* Pure white cards */
+  --border:    #eaeaea;        /* Soft divider */
+  --text:      #2d2d2d;        /* Soft black (not harsh #000) */
+  --text-muted:#7a7a7a;        /* Gentle secondary text */
+  --accent:    #f7931e;        /* Your brand orange — used sparingly */
+  --accent-soft: rgba(247, 147, 30, 0.08); /* Very subtle tint */
+
+  --radius:    12px;
+  --font:      "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --transition: 200ms ease;
 }
 
-/* TOP */
+/* ─── Base Layout ────────────────────────────────────────── */
+.dashboard {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  padding: 32px 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
 .top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .top h1 {
   font-size: 24px;
   font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.3px;
 }
 
 .top p {
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+  line-height: 1.4;
 }
 
 .exportBtn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  transition: border-color var(--transition);
 }
 
-/* CARDS */
+.exportBtn:hover {
+  border-color: var(--accent);
+}
+
+/* ─── Stats Cards ────────────────────────────────────────── */
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.card {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px;
-  border-radius: 10px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-}
-
-.title {
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.positive {
-  color: green;
-}
-
-.negative {
-  color: red;
-}
-
-.icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-/* COLORS */
-.blue { background: #3b82f6; }
-.yellow { background: #eab308; }
-.green { background: #10b981; }
-.red { background: #ef4444; }
-.purple { background: #8b5cf6; }
-
-/* CHARTS */
-.charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.chartBox {
-  padding: 18px;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: border-color var(--transition);
 }
 
-/* BAR */
+.card:hover {
+  border-color: var(--accent);
+}
+
+.card .title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 6px;
+}
+
+.card h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  letter-spacing: -0.2px;
+}
+
+.card span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Simple status indicators — no backgrounds, just color */
+.positive { color: #2d7a4f; }   /* Soft green */
+.negative { color: #9a3434; }   /* Soft red */
+
+/* Icon wrapper — minimal */
+.icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+}
+
+/* ─── Charts Section ─────────────────────────────────────── */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.chartBox {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.chartBox h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.chartBox > p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+/* Minimal bar chart — soft gray bars, one accent highlight */
 .barChart {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 150px;
-  margin-top: 20px;
+  justify-content: space-between;
+  height: 100px;
+  gap: 8px;
 }
 
 .barChart div {
-  width: 20px;
-  background: #ef4444;
-  border-radius: 4px;
+  flex: 1;
+  background: #f0f0f0;
+  border-radius: 3px 3px 0 0;
+  min-width: 20px;
+  transition: background var(--transition);
 }
 
-/* PIE */
+.barChart div:hover {
+  background: var(--accent-soft);
+}
+
+/* Minimal pie — just a soft ring */
 .pie {
-  width: 180px;
-  height: 180px;
+  width: 120px;
+  height: 120px;
+  margin: 16px auto 0;
   border-radius: 50%;
-  margin: 20px auto;
-  background: conic-gradient(
-    #3b82f6 0% 45%,
-    #8b5cf6 45% 75%,
-    #10b981 75% 90%,
-    #f59e0b 90% 100%
-  );
+  border: 10px solid var(--border);
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
 }
 
-/* RECENT */
+/* ─── Recent Chats ───────────────────────────────────────── */
 .recent {
-  padding: 18px;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.recent h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.recent > p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 16px;
 }
 
 .chat {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 10px;
-  background: var(--bg-primary);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.chat:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .dot {
   width: 8px;
   height: 8px;
-  background: #3b82f6;
   border-radius: 50%;
+  background: var(--accent);
+  margin-top: 5px;
+  flex-shrink: 0;
 }
 
 .chatContent {
   flex: 1;
+  min-width: 0;
+}
+
+.chatContent p {
+  font-size: 14px;
+  margin: 0 0 3px;
+  line-height: 1.4;
 }
 
 .chatContent span {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .time {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 24px;
+    gap: 24px;
+  }
+  
+  .top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .charts {
+    grid-template-columns: 1fr;
+  }
 }

@@ -6,7 +6,7 @@
 
 .label {
   font-size: 13px;
-  color: #374151;
+  color: #7a7a7a; /* Softened for calm hierarchy */
   font-weight: 500;
 }
 
@@ -21,21 +21,33 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  border: none;
+  border: 1px solid #eaeaea; /* Added subtle border for consistency */
+  background: #ffffff;
+  color: #5a5a5a;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  outline: none;
+  transition: all 0.15s ease;
 }
 
 .active {
-  background-color: #2563eb;
+  background-color: #f7931e; /* Brand orange */
   color: #ffffff;
+  border-color: #f7931e;
 }
 
 .inactive {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: #ffffff;
+  color: #5a5a5a;
+  border-color: #eaeaea;
 }
 
 .inactive:hover {
-  background-color: #e5e7eb;
+  background-color: rgba(247, 147, 30, 0.08); /* Soft orange tint */
+  border-color: #f7931e;
+  color: #2d2d2d;
+}
+
+/* Accessibility focus ring */
+.toggle:focus-visible {
+  box-shadow: 0 0 0 3px rgba(247, 147, 30, 0.15);
 }
