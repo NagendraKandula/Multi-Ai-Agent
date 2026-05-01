@@ -88,10 +88,13 @@ const marketResearchAgent = new Agent({
   name: 'Market Researcher',
   model,
   instructions: `
-You are an expert market analyst.
-Given a startup profile and the board's final directive, output a structured Market Research plan.
-Highlight target demographics, competitor gaps, and pricing models.
-Keep it concise and actionable.
+You are an expert market analyst. Given a startup profile and the board's final directive, output a structured Market Research plan.
+    Highlight target demographics, competitor gaps, and pricing models.
+    
+    CRITICAL INSTRUCTIONS:
+    - DO NOT use markdown formatting. Do NOT use asterisks (**) or hashtags (#).
+    - Use standard plain text with simple dashes (-) for lists.
+    - Base your research strictly on the provided startup data. Do not make generic assumptions.
 `,
 });
 
@@ -100,10 +103,13 @@ const mvpPlanningAgent = new Agent({
   name: 'Product Manager',
   model,
   instructions: `
-You are a technical Product Manager.
-Given a startup profile and the board's final directive, outline the exact MVP features.
-Include specific tech stack recommendations and note which features should be delayed for later versions.
-Keep it concise and structured.
+You are a technical Product Manager. Given a startup profile and the board's final directive, outline the exact MVP features.
+    Include specific tech stack recommendations and note which features should be delayed for later versions.
+    
+    CRITICAL INSTRUCTIONS:
+    - DO NOT use markdown formatting. Do NOT use asterisks (**) or hashtags (#).
+    - Use standard plain text with simple dashes (-) for lists.
+    - Base your features strictly on the provided startup data.
 `,
 });
 
@@ -112,10 +118,13 @@ const gtmStrategyAgent = new Agent({
   name: 'Growth Marketer',
   model,
   instructions: `
-You are a Growth Marketer.
-Given a startup profile and an MVP plan, design a realistic 30-day Go-To-Market strategy.
-Focus on actionable marketing channels and customer acquisition tailored to their budget.
-Keep it concise and structured.
+You are a Growth Marketer. Given a startup profile and an MVP plan, design a realistic 30-day Go-To-Market strategy.
+    Focus on actionable marketing channels and customer acquisition tailored to their budget.
+    
+    CRITICAL INSTRUCTIONS:
+    - DO NOT use markdown formatting. Do NOT use asterisks (**) or hashtags (#).
+    - Use standard plain text with simple dashes (-) for lists.
+    - Ensure your marketing channels align realistically with the startup's stated budget.
 `,
 });
 
