@@ -1,94 +1,381 @@
+/* ─── Design Tokens ──────────────────────────────────────────────────────────── */
 .header {
+  --clr-bg:           #0b0b0b;
+  --clr-surface:      #161616;
+  --clr-surface2:     #1c1c1c;
+  --clr-border:       rgba(255, 255, 255, 0.08);
+  --clr-border-hover: rgba(255, 255, 255, 0.16);
+
+  --clr-accent:       #ff6b35;
+  --clr-accent2:      #f7931e;
+  --clr-accent-glow:  rgba(255, 107, 53, 0.22);
+  --clr-accent-soft:  rgba(255, 107, 53, 0.10);
+
+  --clr-danger:       #f04d4d;
+  --clr-danger-soft:  rgba(240, 77, 77, 0.10);
+
+  --clr-text:         #f5f5f5;
+  --clr-text-muted:   rgba(245, 245, 245, 0.55);
+  --clr-text-faint:   rgba(245, 245, 245, 0.28);
+
+  --font:             "DM Sans", "Helvetica Neue", Arial, sans-serif;
+  --h-height:         70px;
+  --radius-sm:        6px;
+  --radius-md:        9px;
+  --transition:       160ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Shell ──────────────────────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  height: var(--h-height);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  background-color: #2563eb;
-  border-bottom: 1px solid var(--border-color);
+  gap: 10px;
+  padding: 0 20px;
+
+  background: rgba(11, 11, 11, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--clr-border);
+
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* LEFT - LOGO */
+/* ─── Logo ───────────────────────────────────────────────────────────────────── */
+/* ─── Logo Text (Roca One + Glow) ───────────────────────────────────── */
 .logo {
-  font-size: 28px;
-  font-weight: 600;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0; /* no gap since icon is removed */
+  text-decoration: none;
+  padding: 4px 0;
 }
 
-/* CENTER - SEARCH */
+.logoText {
+  font-family: "Arial Black", Impact, "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: 30px; /* Slightly larger for legibility */
+  letter-spacing: 1px;
+  color: white;
+  transition: text-shadow var(--transition), transform var(--transition);
+  cursor: pointer;
+}
+
+.logoText:hover {
+  text-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(247, 146, 30, 0.973);
+  transform: translateY(-1px);
+}
+
+
+/* Hover lift + enhanced glow */
+.logoText:hover {
+  text-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(247, 147, 30, 0.55),
+    0 0 32px rgba(247, 147, 30, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Optional: subtle active state */
+.logoText:active {
+  transform: translateY(0);
+  transition-duration: 80ms;
+}
+
+/* ─── Search ─────────────────────────────────────────────────────────────────── */
 .searchContainer {
   flex: 1;
   max-width: 500px;
-  margin: 0 40px;
+  margin: 0 auto;
+  position: relative;
   display: flex;
   align-items: center;
-  background-color: var(--bg-secondary);
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
 }
 
 .searchIcon {
-  margin-right: 8px;
-  color: var(--text-secondary);
+  position: absolute;
+  left: 12px;
+  color: var(--clr-text-faint);
+  pointer-events: none;
+  flex-shrink: 0;
 }
 
 .searchInput {
-  border: none;
-  outline: none;
   width: 100%;
-  background: transparent;
-  color: var(--text-primary);
+  height: 36px;
+  padding: 0 40px 0 35px;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
   font-size: 14px;
+  font-family: var(--font);
+  color: var(--clr-text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
-/* RIGHT - ACTIONS */
+.searchInput::placeholder {
+  color: var(--clr-text-faint);
+}
+
+.searchInput:focus {
+  border-color: rgba(255, 107, 53, 0.45);
+  box-shadow: 0 0 0 3px var(--clr-accent-soft);
+}
+
+.searchShortcut {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  font-family: var(--font);
+  color: var(--clr-text-faint);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--clr-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  pointer-events: none;
+  letter-spacing: 0.3px;
+}
+
+/* ─── Right Actions ──────────────────────────────────────────────────────────── */
 .actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
+/* Icon buttons */
 .iconBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-primary);
-  padding: 6px;
-  border-radius: 8px;
-  transition: background 0.2s ease;
-}
-
-.iconBtn:hover {
-  background-color: var(--hover-bg);
-}
-
-.profile {
-  width: 32px;
-  height: 32px;
-  background-color: var(--bg-secondary);
-  border-radius: 50%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--clr-text-muted);
   cursor: pointer;
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+  font-family: var(--font);
 }
 
-/* DARK MODE SUPPORT (optional) */
-body.dark {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
-  --hover-bg: #334155;
+.iconBtn:hover {
+  color: var(--clr-text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--clr-border);
 }
 
-body {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
-  --hover-bg: #e2e8f0;
+.iconBtn:active {
+  transform: scale(0.95);
+}
+
+/* Notification dot */
+.notifDot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--clr-accent);
+  box-shadow: 0 0 6px var(--clr-accent-glow);
+}
+
+/* Divider */
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--clr-border);
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+
+/* ─── Profile Button ─────────────────────────────────────────────────────────── */
+.profileWrap {
+  position: relative;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 10px 0 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition),
+              border-color var(--transition);
+  font-family: var(--font);
+}
+
+.profile:hover,
+.profileOpen {
+  color: var(--clr-text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--clr-border-hover);
+}
+
+.profileAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--clr-accent-soft);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  color: var(--clr-accent);
+  flex-shrink: 0;
+}
+
+.profileName {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+}
+
+.chevron {
+  color: var(--clr-text-faint);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+/* ─── Dropdown Menu ──────────────────────────────────────────────────────────── */
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 210px;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    0 16px 40px -4px rgba(0, 0, 0, 0.6);
+  animation: dropIn 140ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 200;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* User info row */
+.dropdownUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 10px;
+}
+
+.dropdownAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--clr-accent-soft);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  color: var(--clr-accent);
+  flex-shrink: 0;
+}
+
+.dropdownUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.dropdownUserName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--clr-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdownUserEmail {
+  font-size: 11.5px;
+  color: var(--clr-text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Divider inside dropdown */
+.dropdownDivider {
+  height: 1px;
+  background: var(--clr-border);
+  margin: 4px 0;
+}
+
+/* Dropdown items */
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  font-family: var(--font);
+  color: var(--clr-text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--transition), background var(--transition);
+}
+
+.dropdownItem:hover {
+  color: var(--clr-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Logout — danger tint */
+.dropdownLogout {
+  color: var(--clr-danger);
+}
+
+.dropdownLogout:hover {
+  color: var(--clr-danger);
+  background: var(--clr-danger-soft);
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .searchContainer { display: none; }
+  .profileName     { display: none; }
+  .chevron         { display: none; }
+  .profile         { padding: 0 6px; }
 }

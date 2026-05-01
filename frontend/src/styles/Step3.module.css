@@ -1,35 +1,48 @@
 /* Shared step layout styles – used across Step1–Step4 */
+/* Theme: Minimal calm • Creamy bg • Orange accent */
+
 .container {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  background: #fdfdfb;
+  color: #2d2d2d;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 32px 24px 48px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 .header {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
 .title {
   font-size: 24px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 600; /* Softened from 700 */
+  color: #2d2d2d;
   margin: 0;
+  letter-spacing: -0.3px;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: #7a7a7a;
   margin: 0;
+  line-height: 1.5;
 }
 
 /* Card */
 .card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaeaea;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .cardContent {
@@ -49,7 +62,7 @@
 .sectionHeader {
   font-size: 14px;
   font-weight: 600;
-  color: #2563eb;
+  color: #2d2d2d; /* Neutral instead of blue */
   margin: 0 0 4px 0;
 }
 
@@ -64,6 +77,9 @@
   .grid {
     grid-template-columns: 1fr;
   }
+  .container {
+    padding: 24px 16px 32px;
+  }
 }
 
 /* Form controls */
@@ -72,10 +88,10 @@
 .textarea {
   width: 100%;
   padding: 9px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   font-size: 13px;
-  color: #111827;
+  color: #2d2d2d;
   background: #ffffff;
   box-sizing: border-box;
   outline: none;
@@ -88,29 +104,30 @@
 
 .input::placeholder,
 .textarea::placeholder {
-  color: #9ca3af;
+  color: #9a9a9a;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #f7931e;
+  box-shadow: 0 0 0 3px rgba(247, 147, 30, 0.1);
 }
 
 .textarea {
-  resize: none;
+  resize: vertical;
   min-height: 80px;
+  line-height: 1.5;
 }
 
 .select option {
   background: #ffffff;
-  color: #111827;
+  color: #2d2d2d;
 }
 
 .label {
   font-size: 13px;
-  color: #374151;
+  color: #6b6b6b;
   font-weight: 500;
   display: block;
   margin-bottom: 6px;
@@ -129,9 +146,9 @@
   left: 0;
   right: 0;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   z-index: 100;
   overflow: hidden;
 }
@@ -139,15 +156,15 @@
 .option {
   padding: 10px 12px;
   font-size: 13px;
-  color: #111827;
+  color: #2d2d2d;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.15s;
   font-family: inherit;
 }
 
 .option:hover {
-  background: #eff6ff;
-  color: #2563eb;
+  background: rgba(247, 147, 30, 0.08);
+  color: #2d2d2d;
 }
 
 /* Toggle buttons */
@@ -162,23 +179,28 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  border: none;
+  border: 1px solid #eaeaea;
+  background: #ffffff;
+  color: #5a5a5a;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .toggleActive {
-  background-color: #2563eb;
+  background-color: #f7931e;
   color: #ffffff;
+  border-color: #f7931e;
 }
 
 .toggleInactive {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: #ffffff;
+  color: #5a5a5a;
+  border-color: #eaeaea;
 }
 
 .toggleInactive:hover {
-  background-color: #e5e7eb;
+  background-color: rgba(247, 147, 30, 0.08);
+  border-color: #f7931e;
 }
 
 /* Footer */
@@ -186,13 +208,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #eaeaea;
 }
 
 .primaryBtn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: #111827;
+  background-color: #f7931e;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -200,17 +225,19 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, transform 0.1s;
   font-family: inherit;
 }
 
 .primaryBtn:hover {
-  background-color: #1f2937;
+  background-color: #e6851a;
+  transform: translateY(-1px);
 }
 
 .primaryBtn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 .secondaryBtn {
@@ -218,19 +245,21 @@
   align-items: center;
   gap: 8px;
   background-color: #ffffff;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  color: #6b6b6b;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
   font-family: inherit;
 }
 
 .secondaryBtn:hover {
-  background-color: #f9fafb;
+  background-color: #fafafa;
+  color: #2d2d2d;
+  border-color: #d0d0d0;
 }
 
 .secondaryBtn:disabled {
