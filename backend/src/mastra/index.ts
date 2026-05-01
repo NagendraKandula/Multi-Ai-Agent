@@ -2,12 +2,18 @@ import { Mastra } from '@mastra/core/mastra';
 import { Agent } from '@mastra/core/agent';
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
-
+import { runwayCalculatorTool, techTrendCheckerTool, cacBenchmarkTool } from './tools/board-tools';
+import { 
+  competitorSearchTool, 
+  techStackRecommenderTool, 
+  adBudgetEstimatorTool 
+} from './tools/startup-tools';
+const model = 'ollama-cloud/qwen3-next:80b';
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-const model = groq('meta-llama/llama-4-scout-17b-16e-instruct');
+//const model = groq('meta-llama/llama-4-scout-17b-16e-instruct');
 
 const ctoAgent = new Agent({
   id: 'cto',
@@ -27,6 +33,7 @@ You are a pragmatic, battle-hardened Chief Technology Officer (CTO).
     - Do NOT agree just to be polite.
     - Defend your engineering resources fiercely against scope creep.
 `,
+tools: { runwayCalculatorTool },
 });
 
 const cfoAgent = new Agent({
@@ -47,6 +54,7 @@ You are a ruthless, numbers-driven Chief Financial Officer (CFO).
     - Do NOT agree just to be polite.
     - Do not just block ideas—propose a cheaper, financially viable alternative immediately.
 `,
+tools: { runwayCalculatorTool },
 });
 
 const cmoAgent = new Agent({
@@ -67,6 +75,7 @@ You are an aggressive, growth-obsessed Chief Marketing Officer (CMO).
     - Do NOT agree just to be polite.
     - Demand faster launches and fight for features that drive virality.
 `,
+tools: { cacBenchmarkTool },
 });
 
 const supervisor = new Agent({
@@ -96,6 +105,7 @@ You are an expert market analyst. Given a startup profile and the board's final 
     - Use standard plain text with simple dashes (-) for lists.
     - Base your research strictly on the provided startup data. Do not make generic assumptions.
 `,
+tools: { competitorSearchTool },
 });
 
 const mvpPlanningAgent = new Agent({
@@ -110,7 +120,7 @@ You are a technical Product Manager. Given a startup profile and the board's fin
     - DO NOT use markdown formatting. Do NOT use asterisks (**) or hashtags (#).
     - Use standard plain text with simple dashes (-) for lists.
     - Base your features strictly on the provided startup data.
-`,
+`, tools: { techStackRecommenderTool },
 });
 
 const gtmStrategyAgent = new Agent({
@@ -126,6 +136,7 @@ You are a Growth Marketer. Given a startup profile and an MVP plan, design a rea
     - Use standard plain text with simple dashes (-) for lists.
     - Ensure your marketing channels align realistically with the startup's stated budget.
 `,
+tools: { adBudgetEstimatorTool },
 });
 
 
