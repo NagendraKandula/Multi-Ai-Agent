@@ -66,47 +66,6 @@ export const techTrendCheckerTool = createTool({
   },
 });
 
-export const projectRiskAssessorTool = createTool({
-  id: 'project-risk-assessor-tool',
-  description: 'Evaluates the overall risk of the startup project based on budget, timeline, and tech constraints.',
-  inputSchema: z.object({
-    budgetLevel: z.string(),
-    timelineMonths: z.number(),
-    aiReliance: z.string(),
-  }),
-  outputSchema: z.object({
-    overallRiskScore: z.number(),
-    criticalBottleneck: z.string(),
-    supervisorRecommendation: z.string(),
-  }),
-  execute: async ({ budgetLevel, timelineMonths, aiReliance }) => {
-    console.log(`[Supervisor Tool] Assessing risk for ${budgetLevel} budget over ${timelineMonths} months...`);
-    
-    let riskScore = 50; // Base risk
-    let bottleneck = "Market adoption";
-
-    if (budgetLevel.includes("5L") || budgetLevel.includes("Shoestring")) {
-      riskScore += 30;
-      bottleneck = "Capital exhaustion before PMF (Product-Market Fit)";
-    }
-
-    if (aiReliance.includes("Yes") || aiReliance.includes("High")) {
-      riskScore += 10;
-      if (timelineMonths < 4) {
-        riskScore += 10;
-        bottleneck = "Insufficient time to train/integrate complex AI models safely";
-      }
-    }
-
-    return {
-      overallRiskScore: Math.min(riskScore, 100),
-      criticalBottleneck: bottleneck,
-      supervisorRecommendation: riskScore > 80 
-        ? "MANDATORY: Cut scope immediately. Do not proceed with current feature list." 
-        : "Proceed with caution. Enforce strict weekly milestone tracking.",
-    };
-  },
-});
 
 // 3. CMO Tool: CAC Benchmarker
 export const cacBenchmarkTool = createTool({
