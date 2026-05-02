@@ -215,7 +215,8 @@ const LiveSessionPage = ({
     setIsLaunching(true);
     
     try {
-      const res = await fetch("http://localhost:4000/simulation/message", {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4000";
+      const res = await fetch(`${API_URL}/simulation/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, onboardingData })

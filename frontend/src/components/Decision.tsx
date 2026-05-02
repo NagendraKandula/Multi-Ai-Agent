@@ -38,7 +38,8 @@ const Decision: React.FC<DecisionProps> = ({ sessionData, setActive, setSessionD
 
     const fetchSummary = async () => {
       try {
-        const res = await fetch('http://localhost:4000/simulation/summary', {
+        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4000";
+        const res = await fetch(`${API_URL}/simulation/summary`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

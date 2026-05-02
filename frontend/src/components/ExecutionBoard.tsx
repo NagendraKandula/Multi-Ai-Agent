@@ -47,7 +47,8 @@ const ExecutionBoard: React.FC<ExecutionBoardProps> = ({ sessionData, setActive 
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'Executing' } : t));
 
     try {
-      const res = await fetch('http://localhost:4000/simulation/execute', {
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4000";
+      const res = await fetch(`${API_URL}/simulation/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
