@@ -50,6 +50,24 @@ const saveSession = (agenda: string, elapsedSeconds: number) => {
   localStorage.setItem("previousSessions", JSON.stringify(updated));
 };
 
+function cleanAgentOutput(text: string): string {
+  if (!text) return '';
+  
+  return text
+    // 1. Remove thinking blocks
+    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+    // 2. Remove ANY tag starting with <|tool... (catches all standard and truncated tags)
+    .replace(/<\|tool[\s\S]*?>/gi, '')
+    // 3. Catch the weird tags that end in the full-width pipe '｜' instead of '>'
+    .replace(/<\|tool[\s\S]*?｜>/gi, '')
+    // 4. Remove closing tool tags
+    .replace(/<\/\|tool[\s\S]*?>/gi, '')
+    // 5. Remove the exact "function ```json" block you are seeing
+    .replace(/function\s*```[\s\S]*?```/gi, '')
+    // 6. Remove ANY other markdown code blocks
+    .replace(/```[\s\S]*?```/gi, '')
+    .trim();
+}
 // ─── Agenda Setup Page ────────────────────────────────────────────────────────
 
 const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {

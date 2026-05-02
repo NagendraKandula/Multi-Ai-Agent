@@ -11,23 +11,63 @@ type Round = {
   messages: Message[];
 };
 
-// Utility: shuffle array
+// =========================
+// 🔒 SAFETY UTILITIES
+// =========================
+function cleanText(output: string): string {
+  if (!output) return '';
+
+  return output
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/{[\s\S]*?}/g, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\n{2,}/g, '\n')
+    .trim();
+}
+
+function isValid(output: string): boolean {
+  return !!output && !/[{}<>`]/.test(output);
+}
+
+function safeExtract(res: any): string {
+  const raw = res?.text || res || '';
+  const cleaned = cleanText(raw);
+
+  if (!isValid(cleaned)) {
+    return 'Response unavailable due to formatting issue.';
+  }
+
+  return cleaned;
+}
+
+// =========================
+// 🎲 Utility: shuffle
+// =========================
 function shuffleArray<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
+// =========================
+// 🧠 GLOBAL RULES
+// =========================
+const SYSTEM_RULES = `
+STRICT RULES:
+- Plain text only
+- No JSON, markdown, bullets
+- No code blocks or tags
+- Max 2 sentences
+- Under 25 words
+`;
+
 @Injectable()
 export class AppService {
 
-  // =========================
-  // INIT SIMULATION
-  // =========================
   async runStartupSimulation(data: any) {
     return { status: 'initialized', data };
   }
 
   // =========================
-  // LIVE DEBATE (MAIN FEATURE)
+  // 🔥 LIVE DEBATE
   // =========================
   async handleLiveDebate(message: string, data: any) {
 
@@ -49,45 +89,32 @@ User Question: ${message}
     try {
 
       // =====================
-      // ROUND 1 (STRUCTURED)
+      // 🚀 ROUND 1 (PARALLEL)
       // =====================
-      const round1: Message[] = [];
+      const [ctoRaw, cfoRaw, cmoRaw] = await Promise.all([
+        cto.generate(`${SYSTEM_RULES}\n${memory}\nYou are CTO. Give tech stance with tradeoffs.`),
+        cfo.generate(`${SYSTEM_RULES}\n${memory}\nYou are CFO. Challenge with cost and ROI.`),
+        cmo.generate(`${SYSTEM_RULES}\n${memory}\nYou are CMO. Push growth and suggest one tactic.`),
+      ]);
 
-      const ctoRes = await cto.generate(`
-${memory}
-You are CTO in a real startup meeting.
-- Give your stance clearly
-- Mention tradeoffs / tech decisions
-- 2 short sentences max
-`);
-      round1.push({ agent: 'CTO', content: ctoRes.text });
-      memory += `\nCTO: ${ctoRes.text}`;
+      const ctoRes = safeExtract(ctoRaw);
+      const cfoRes = safeExtract(cfoRaw);
+      const cmoRes = safeExtract(cmoRaw);
 
-      const cfoRes = await cfo.generate(`
-${memory}
-You are CFO.
-- Challenge CTO with cost / ROI concerns
-- Be sharp and slightly aggressive
-- 2 sentences max
-`);
-      round1.push({ agent: 'CFO', content: cfoRes.text });
-      memory += `\nCFO: ${cfoRes.text}`;
+      const round1: Message[] = [
+        { agent: 'CTO', content: ctoRes },
+        { agent: 'CFO', content: cfoRes },
+        { agent: 'CMO', content: cmoRes },
+      ];
 
-      const cmoRes = await cmo.generate(`
-${memory}
-You are CMO.
-- React to BOTH CTO & CFO
-- Push growth strategy
-- Suggest 1 real tactic
-- 2 sentences max
-`);
-      round1.push({ agent: 'CMO', content: cmoRes.text });
-      memory += `\nCMO: ${cmoRes.text}`;
+      memory += `\nCTO says: ${ctoRes}`;
+      memory += `\nCFO says: ${cfoRes}`;
+      memory += `\nCMO says: ${cmoRes}`;
 
       rounds.push({ round: 1, messages: round1 });
 
       // =====================
-      // ROUND 2 (DYNAMIC)
+      // 🔁 ROUND 2 (DYNAMIC)
       // =====================
       const round2: Message[] = [];
 
@@ -95,77 +122,67 @@ You are CMO.
         {
           label: 'CTO',
           agent: cto,
-          prompt: (m: string) => `
-${m}
-Respond to last speaker.
-- Defend or counter strongly
-- Be practical
-- 2 sentences max
-`,
+          prompt: `Respond to last speaker. Defend or counter with practical reasoning.`,
         },
         {
           label: 'CFO',
           agent: cfo,
-          prompt: (m: string) => `
-${m}
-Push on risks / costs again.
-- Question assumptions
-- Be direct
-- 2 sentences max
-`,
+          prompt: `Push risks and cost concerns. Question assumptions.`,
         },
         {
           label: 'CMO',
           agent: cmo,
-          prompt: (m: string) => `
-${m}
-Defend growth.
-- Add one actionable idea
-- Be persuasive
-- 2 sentences max
-`,
+          prompt: `Defend growth strategy. Add one actionable idea.`,
         },
       ]);
 
       for (const a of agents) {
-        const res = await a.agent.generate(a.prompt(memory));
-        round2.push({ agent: a.label, content: res.text });
-        memory += `\n${a.label}: ${res.text}`;
+        try {
+          const raw = await a.agent.generate(
+            `${SYSTEM_RULES}\n${memory}\n${a.prompt}`
+          );
+
+          const clean = safeExtract(raw);
+
+          round2.push({ agent: a.label, content: clean });
+          memory += `\n${a.label} says: ${clean}`;
+
+        } catch {
+          round2.push({
+            agent: a.label,
+            content: 'Agent failed to respond.',
+          });
+        }
       }
 
       rounds.push({ round: 2, messages: round2 });
 
       // =====================
-      // ROUND 3 (FINAL DECISION)
+      // 🧠 FINAL DECISION
       // =====================
-      const final = await supervisor.generate(`
+      const finalRaw = await supervisor.generate(`
+${SYSTEM_RULES}
 ${memory}
 You are CEO.
-
-Make FINAL decision:
-- What we WILL do
-- What we will NOT do
-- Budget split
-- Keep it practical
-
+Make final decision with budget split and clear priorities.
 Max 4 sentences.
 `);
 
-      const finalDecision = final.text;
+      const finalDecision = safeExtract(finalRaw);
 
       rounds.push({
         round: 3,
         messages: [{ agent: 'Supervisor', content: finalDecision }],
       });
 
-      // =========================
-      // AUTO EXECUTION (NEW 🔥)
-      // =========================
+      // =====================
+      // ⚙️ EXECUTION ENGINE
+      // =====================
       const execution = await this.executeTaskPlan(data, finalDecision);
 
       return {
         rounds,
-        execution, // ✅ added
+        execution,
       };
 
     } catch (err) {
@@ -188,7 +205,7 @@ Max 4 sentences.
   }
 
   // =========================
-  // EXECUTION ENGINE (AGENTS)
+  // ⚙️ EXECUTION ENGINE
   // =========================
   async executeTaskPlan(onboardingData: any, finalDecision: string) {
 
@@ -198,47 +215,22 @@ ${JSON.stringify(onboardingData, null, 2)}
 
 Final Decision:
 ${finalDecision}
-
-Generate execution plan.
 `;
 
     const marketAgent = mastra.getAgentById('marketResearcher');
     const mvpAgent = mastra.getAgentById('mvpPlanner');
     const gtmAgent = mastra.getAgentById('gtmStrategist');
 
-    const [market, mvp, gtm] = await Promise.all([
-      marketAgent.generate(`
-${prompt}
-Give:
-- Target users
-- Competitor insight
-- Demand validation
-Short bullets only.
-`),
-
-      mvpAgent.generate(`
-${prompt}
-Give:
-- MVP features
-- Tech stack
-- Timeline
-Keep it practical.
-`),
-
-      gtmAgent.generate(`
-${prompt}
-Give:
-- Launch plan
-- Channels
-- Growth hacks
-Keep it actionable.
-`),
+    const [marketRaw, mvpRaw, gtmRaw] = await Promise.all([
+      marketAgent.generate(`${SYSTEM_RULES}\n${prompt}\nTarget users and demand validation.`),
+      mvpAgent.generate(`${SYSTEM_RULES}\n${prompt}\nMVP features, tech stack, and timeline.`),
+      gtmAgent.generate(`${SYSTEM_RULES}\n${prompt}\nLaunch plan, channels, and growth hacks.`),
     ]);
 
     return {
-      marketResearch: market.text,
-      mvpPlan: mvp.text,
-      gtmStrategy: gtm.text,
+      marketResearch: safeExtract(marketRaw),
+      mvpPlan: safeExtract(mvpRaw),
+      gtmStrategy: safeExtract(gtmRaw),
     };
   }
 }

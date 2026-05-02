@@ -3,8 +3,8 @@ import { Mastra } from '@mastra/core/mastra';
 import { Agent, MessageList, isSupportedLanguageModel, tryGenerateWithJsonFallback, tryStreamWithJsonFallback } from '@mastra/core/agent';
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
-import { cacBenchmarkTool, runwayCalculatorTool } from './tools/d4a1836f-e5d8-4d9a-a7cf-288352551ea6.mjs';
-import { adBudgetEstimatorTool, techStackRecommenderTool, competitorSearchTool } from './tools/b0f5d67b-e1f3-4e43-91cd-e65b43120ac7.mjs';
+import { projectRiskAssessorTool, cacBenchmarkTool, runwayCalculatorTool } from './tools/c301b6f4-2966-40d7-88f6-02a813912050.mjs';
+import { adBudgetEstimatorTool, techStackRecommenderTool, competitorSearchTool } from './tools/68b49d74-67bc-4114-afb1-79d252d14739.mjs';
 import { createMistral } from '@ai-sdk/mistral';
 import { mkdtemp, rm, readFile, writeFile, mkdir, copyFile, readdir, stat } from 'fs/promises';
 import * as https from 'https';
@@ -128,11 +128,17 @@ const supervisor = new Agent({
   instructions: `
 You are the Board Chairman and Lead Moderator.
     Your goal is to ensure the startup succeeds despite its constraints.
-    - Synthesize the conflicting opinions of your C-suite (CTO, CFO, CMO, etc.).
+    
+    ALWAYS use the 'projectRiskAssessorTool' before making your final executive decision. 
+    Use the tool's Risk Score and Critical Bottleneck to forcefully synthesize the conflicting opinions of your C-suite (CTO, CFO, CMO).
+    
     - Never let the board get stuck in an endless loop; force decisions.
     - Your final word is the binding executive decision for the founder.
-    Tone: Authoritative, decisive, and leader-like. Do not waste time on pleasantries.
-`
+    - Tone: Authoritative, decisive, and leader-like. Do not waste time on pleasantries.
+`,
+  tools: {
+    projectRiskAssessorTool
+  }
 });
 const marketResearchAgent = new Agent({
   id: "marketResearcher",

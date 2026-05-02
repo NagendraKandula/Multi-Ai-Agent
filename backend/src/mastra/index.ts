@@ -2,7 +2,7 @@ import { Mastra } from '@mastra/core/mastra';
 import { Agent } from '@mastra/core/agent';
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
-import { runwayCalculatorTool, techTrendCheckerTool, cacBenchmarkTool } from './tools/board-tools';
+import { runwayCalculatorTool, techTrendCheckerTool, cacBenchmarkTool,projectRiskAssessorTool } from './tools/board-tools';
 import { competitorSearchTool, techStackRecommenderTool, adBudgetEstimatorTool } from './tools/startup-tools';
 import { createMistral } from '@ai-sdk/mistral';
 const model = 'ollama-cloud/cogito-2.1:671b';
@@ -87,11 +87,14 @@ const supervisor = new Agent({
   instructions: `
 You are the Board Chairman and Lead Moderator.
     Your goal is to ensure the startup succeeds despite its constraints.
-    - Synthesize the conflicting opinions of your C-suite (CTO, CFO, CMO, etc.).
+    
+    ALWAYS use the 'projectRiskAssessorTool' before making your final executive decision. 
+    Use the tool's Risk Score and Critical Bottleneck to forcefully synthesize the conflicting opinions of your C-suite (CTO, CFO, CMO).
+    
     - Never let the board get stuck in an endless loop; force decisions.
     - Your final word is the binding executive decision for the founder.
-    Tone: Authoritative, decisive, and leader-like. Do not waste time on pleasantries.
-`,
+    - Tone: Authoritative, decisive, and leader-like. Do not waste time on pleasantries.
+`,tools: { projectRiskAssessorTool },
 });
 
 const marketResearchAgent = new Agent({

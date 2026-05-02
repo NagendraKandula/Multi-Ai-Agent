@@ -61,6 +61,41 @@ const techTrendCheckerTool = createTool({
     };
   }
 });
+const projectRiskAssessorTool = createTool({
+  id: "project-risk-assessor-tool",
+  description: "Evaluates the overall risk of the startup project based on budget, timeline, and tech constraints.",
+  inputSchema: z.object({
+    budgetLevel: z.string(),
+    timelineMonths: z.number(),
+    aiReliance: z.string()
+  }),
+  outputSchema: z.object({
+    overallRiskScore: z.number(),
+    criticalBottleneck: z.string(),
+    supervisorRecommendation: z.string()
+  }),
+  execute: async ({ budgetLevel, timelineMonths, aiReliance }) => {
+    console.log(`[Supervisor Tool] Assessing risk for ${budgetLevel} budget over ${timelineMonths} months...`);
+    let riskScore = 50;
+    let bottleneck = "Market adoption";
+    if (budgetLevel.includes("5L") || budgetLevel.includes("Shoestring")) {
+      riskScore += 30;
+      bottleneck = "Capital exhaustion before PMF (Product-Market Fit)";
+    }
+    if (aiReliance.includes("Yes") || aiReliance.includes("High")) {
+      riskScore += 10;
+      if (timelineMonths < 4) {
+        riskScore += 10;
+        bottleneck = "Insufficient time to train/integrate complex AI models safely";
+      }
+    }
+    return {
+      overallRiskScore: Math.min(riskScore, 100),
+      criticalBottleneck: bottleneck,
+      supervisorRecommendation: riskScore > 80 ? "MANDATORY: Cut scope immediately. Do not proceed with current feature list." : "Proceed with caution. Enforce strict weekly milestone tracking."
+    };
+  }
+});
 const cacBenchmarkTool = createTool({
   id: "cac-benchmark-tool",
   description: "Fetches industry standard Customer Acquisition Costs (CAC) to justify marketing budgets.",
@@ -239,11 +274,17 @@ const supervisor = new Agent({
   instructions: `
 You are the Board Chairman and Lead Moderator.
     Your goal is to ensure the startup succeeds despite its constraints.
-    - Synthesize the conflicting opinions of your C-suite (CTO, CFO, CMO, etc.).
+    
+    ALWAYS use the 'projectRiskAssessorTool' before making your final executive decision. 
+    Use the tool's Risk Score and Critical Bottleneck to forcefully synthesize the conflicting opinions of your C-suite (CTO, CFO, CMO).
+    
     - Never let the board get stuck in an endless loop; force decisions.
     - Your final word is the binding executive decision for the founder.
-    Tone: Authoritative, decisive, and leader-like. Do not waste time on pleasantries.
-`
+    - Tone: Authoritative, decisive, and leader-like. Do not waste time on pleasantries.
+`,
+  tools: {
+    projectRiskAssessorTool
+  }
 });
 const marketResearchAgent = new Agent({
   id: "marketResearcher",
