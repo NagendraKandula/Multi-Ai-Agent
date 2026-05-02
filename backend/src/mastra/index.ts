@@ -3,16 +3,18 @@ import { Agent } from '@mastra/core/agent';
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
 import { runwayCalculatorTool, techTrendCheckerTool, cacBenchmarkTool } from './tools/board-tools';
-import { 
-  competitorSearchTool, 
-  techStackRecommenderTool, 
-  adBudgetEstimatorTool 
-} from './tools/startup-tools';
-const model = 'ollama-cloud/qwen3-next:80b';
+import { competitorSearchTool, techStackRecommenderTool, adBudgetEstimatorTool } from './tools/startup-tools';
+import { createMistral } from '@ai-sdk/mistral';
+const model = 'ollama-cloud/cogito-2.1:671b';
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,
 });
+const mistral = createMistral({
+  apiKey: process.env.MISTRAL_API_KEY, // Make sure this is in your .env file
+});
 
+// 3. Set the model
+//const model = mistral('mistral/codestral-latest');
 //const model = groq('meta-llama/llama-4-scout-17b-16e-instruct');
 
 const ctoAgent = new Agent({
