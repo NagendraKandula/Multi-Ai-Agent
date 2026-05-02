@@ -7,6 +7,7 @@ import LiveSession from "./components/LiveSession";
 import Decision from "./components/Decision";
 import Landing from "./components/Landing";
 import styles from "./styles/AppLayout.module.css";
+import ExecutionBoard from "./components/ExecutionBoard";
 
 const App = () => {
   const [active, setActive] = useState("landing");
@@ -35,8 +36,10 @@ const App = () => {
         // ✅ UPDATED: Pass setActive and setSessionData to LiveSession
         return <LiveSession setActive={setActive} setSessionData={setSessionData} sessionData={sessionData} />;
       case "summary":    
-        // ✅ ADDED: Pass sessionData to Decision
-        return <Decision sessionData={sessionData} />;
+        return <Decision sessionData={sessionData} setActive={setActive} setSessionData={setSessionData} />;
+        case "execution":  
+        // ✅ The new Execution Board page
+        return <ExecutionBoard sessionData={sessionData} setActive={setActive} />;
       default:           
         return null;
     }

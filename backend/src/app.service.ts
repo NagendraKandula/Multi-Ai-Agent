@@ -179,10 +179,10 @@ Instructions:
     }
   }
    // Update the function signature and prompt injection
-  async generateDecisionSummary(body: { transcript: string | string[], onboardingData: any }) {
+  // Update the function signature to accept the agenda!
+  async generateDecisionSummary(body: { transcript: string | string[], onboardingData: any, agenda?: string }) {
     const supervisor = mastra.getAgentById('supervisor');
     
-    // ✅ Bulletproof check: If it's an array, join it. If it's a string, keep it.
     const transcriptText = Array.isArray(body.transcript) 
       ? body.transcript.join('\n') 
       : body.transcript;
@@ -190,6 +190,7 @@ Instructions:
     const prompt = `
 Startup: ${body.onboardingData?.businessName || 'Unknown'}
 Problem: ${body.onboardingData?.problemSolving || 'Not specified'}
+Agenda: ${body.agenda || 'Not specified'}
 
 Meeting Transcript:
 ${transcriptText}
@@ -199,9 +200,9 @@ You MUST format your response EXACTLY as a JSON object with the following keys:
 {
   "score": "A number out of 10 evaluating viability (e.g., '8/10')",
   "finalSummary": "A comprehensive paragraph summarizing the final decision and strategic direction.",
-  "strengths": ["List of 2-3 key strengths identified in the debate"],
-  "concerns": ["List of 2-3 key risks or concerns identified in the debate"],
-  "Action Plan: ["A concise 3-step action plan for the next 30 days to move forward with the decision."]
+  "strengths": ["List of key strengths identified in the debate"],
+  "concerns": ["List of key risks or concerns identified in the debate"],
+  "actionPlan": ["List of concrete, actionable steps required to solve the stated problem and execute the decision. Generate as many steps as needed based on the debate."]
 }
 Do NOT wrap the JSON in markdown blocks (no \`\`\`json). Return ONLY valid JSON.
 `;
@@ -216,8 +217,61 @@ Do NOT wrap the JSON in markdown blocks (no \`\`\`json). Return ONLY valid JSON.
          score: "N/A",
          finalSummary: "Debate concluded, but failed to generate a formatted summary.",
          strengths: ["Data unavailable"],
-         concerns: ["Formatting error"]
+         concerns: ["Formatting error"],
+         actionPlan: ["Analyze failure and retry"]
        };
+    }
+  }
+  // Add this inside AppService, below generateDecisionSummary
+  async executeTask(body: { task: string, startupContext: any }) {
+    const supervisor = mastra.getAgentById('supervisor');
+    
+    // 1. Route the task to the right agent
+    const routingPrompt = `
+      Task: "${body.task}"
+      Which executive role is best suited to execute this? 
+      Choose ONLY ONE: CTO, CMO, CFO, COO, Legal, CSO.
+      Respond with exactly the acronym.
+    `;
+    const routingRes = await supervisor.generate(routingPrompt);
+    const assignedRole = routingRes.text.trim().replace(/[^a-zA-Z]/g, '').toUpperCase();
+    
+    // Fallback to COO if confused
+    const agentId = assignedRole.toLowerCase();
+    let agent = mastra.getAgentById(agentId as any) || mastra.getAgentById('coo');
+    const actualRole = agent ? assignedRole : 'COO';
+
+    // 2. The Agent Executes the Task
+    const executionPrompt = `
+      Startup Context: ${JSON.stringify(body.startupContext)}
+      Your Role: ${actualRole}
+      Your Task: "${body.task}"
+
+      You are EXECUTING this task for the startup. Provide the actual deliverable.
+      
+      Respond EXACTLY in this JSON format (no markdown formatting, just raw JSON):
+      {
+        "agent": "${actualRole}",
+        "status": "Completed",
+        "thoughtProcess": "Briefly explain the reasoning of how you approached this task.",
+        "deliverableTitle": "Title of what you created",
+        "deliverableContent": "The actual detailed work/output you generated to complete the task."
+      }
+    `;
+
+    try {
+      const result = await agent.generate(executionPrompt);
+      const cleanedJson = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(cleanedJson);
+    } catch (e) {
+      console.error("Execution failed", e);
+      return {
+        agent: actualRole,
+        status: "Failed",
+        thoughtProcess: "System encountered an error during task decomposition.",
+        deliverableTitle: "Error",
+        deliverableContent: "Failed to execute task due to API timeout."
+      };
     }
   }
   }

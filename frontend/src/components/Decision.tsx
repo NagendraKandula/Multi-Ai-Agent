@@ -7,7 +7,10 @@ interface DecisionProps {
   sessionData: {
     transcript: string[];
     onboardingData: any;
+    summary?: SummaryData;
   } | null;
+  setActive: (page: string) => void;
+  setSessionData: (data: any) => void;
 }
 
 interface SummaryData {
@@ -17,7 +20,7 @@ interface SummaryData {
   concerns: string[];
 }
 
-const Decision: React.FC<DecisionProps> = ({ sessionData }) => {
+const Decision: React.FC<DecisionProps> = ({ sessionData, setActive, setSessionData }) => {
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +64,7 @@ const Decision: React.FC<DecisionProps> = ({ sessionData }) => {
 
   // 2. The PDF Export Function
   const handleExportPDF = async () => {
+
     if (!contentRef.current) return;
     
     setIsExporting(true); // Show loading state on button
@@ -87,7 +91,13 @@ const Decision: React.FC<DecisionProps> = ({ sessionData }) => {
       setIsExporting(false);
     }
   };
-
+const handleExecutePlan = () => {
+    if (summary) {
+      // Save the generated summary into sessionData so the Execution Board can use the action items!
+      setSessionData({ ...sessionData, summary });
+      setActive("execution"); // Switch to the execution board
+    }
+  };
   if (loading) {
     return (
       <div className={styles.page} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -95,6 +105,7 @@ const Decision: React.FC<DecisionProps> = ({ sessionData }) => {
       </div>
     );
   }
+
 
   if (error) {
     return (
@@ -183,8 +194,12 @@ const Decision: React.FC<DecisionProps> = ({ sessionData }) => {
           </p>
 
           <div className={styles.actions}>
-            <button className={styles.primaryBtn}>
-              Approve Plan
+            <button 
+      className={styles.primaryBtn} 
+      onClick={handleExecutePlan} // ✅ Triggers the Execution Board
+    >
+              
+              Execute Plan
             </button>
             <button className={styles.ghostBtn}>
               Request changes

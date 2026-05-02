@@ -29,4 +29,8 @@ export class AppController {
   async getSummary(@Body() body: { transcript: string | string[], onboardingData: any }) {
     return this.appService.generateDecisionSummary(body);
   }
+  @Post('execute')
+  async executeTask(@Body() body: { task: string, startupContext: any }) {
+    return this.appService.executeTask(body);
+  }
 }
