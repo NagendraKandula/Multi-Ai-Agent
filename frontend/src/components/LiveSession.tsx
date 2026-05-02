@@ -30,16 +30,31 @@ interface Session {
 }
 
 // --- Agent Styling Config ---
+// ─── Agent Styling Config (Theme-Aligned) ───────────────────────────────────
+/* Soft, muted tones that work with #fdfdfb background + #f7931e accent */
+
 const AGENT_COLORS: Record<string, string> = {
-  CTO: "#22c55e", CFO: "#f59e0b", CMO: "#3b82f6",
-  COO: "#ef4444", CPO: "#8b5cf6", Legal: "#06b6d4",
-  CSO: "#f97316", Supervisor: "#1e293b"
+  // Dots / accents — distinct but calm
+  CTO:        "#7cb9a8",  // Soft teal-green (tech/architecture)
+  CFO:        "#c9a76a",  // Soft gold (finance)
+  CMO:        "#7aa8d4",  // Soft blue (marketing/trust)
+  COO:        "#d49a9a",  // Soft rose (operations/people)
+  CPO:        "#a894c4",  // Soft lavender (product/innovation)
+  Legal:      "#8a9aa8",  // Soft steel (legal/neutral)
+  CSO:        "#e8a87a",  // Soft amber (strategy/warmth)
+  Supervisor: "#f7931e",  // Brand orange (human oversight — primary)
 };
 
 const AGENT_BG: Record<string, string> = {
-  CTO: "#dcfce7", CFO: "#fef9c3", CMO: "#dbeafe",
-  COO: "#fee2e2", CPO: "#ede9fe", Legal: "#cffafe",
-  CSO: "#ffedd5", Supervisor: "#f1f5f9"
+  // Bubble backgrounds — very subtle tints for calm readability
+  CTO:        "#f0f6f5",  // Soft teal tint
+  CFO:        "#fbf7f0",  // Soft gold tint
+  CMO:        "#f1f5fa",  // Soft blue tint
+  COO:        "#faf1f1",  // Soft rose tint
+  CPO:        "#f5f2f8",  // Soft lavender tint
+  Legal:      "#f2f4f6",  // Soft steel tint
+  CSO:        "#fdf4ed",  // Soft amber tint
+  Supervisor: "#fef6f0",  // Soft orange tint (warmer for human role)
 };
 
 // ✅ 2. Updated helper to actually save the chat messages and transcript

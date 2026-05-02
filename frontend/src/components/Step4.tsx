@@ -129,7 +129,7 @@ const Step4 = ({ formData, set, back, goLive }: Props) => {
                       onChange={(e) => set({ [field]: parseInt(e.target.value) })}
                       className={styles.slider}
                       style={{
-                        background: `linear-gradient(to right, #2563eb 0%, #2563eb ${formData[field] || 50}%, #e5e7eb ${formData[field] || 50}%, #e5e7eb 100%)`,
+                        background: `linear-gradient(to right, #212630 0%, #0e1c3a ${formData[field] || 50}%, #e5e7eb ${formData[field] || 50}%, #e5e7eb 100%)`,
                       }}
                     />
                   </div>
@@ -215,7 +215,7 @@ const Step4 = ({ formData, set, back, goLive }: Props) => {
                     <div
                       className={styles.agentIcon}
                       style={{
-                        background: selected ? "#2563eb" : "#e5e7eb",
+                        background: selected ? "#1c1f24" : "#e5e7eb",
                         color: selected ? "#fff" : "#6b7280",
                       }}
                     >

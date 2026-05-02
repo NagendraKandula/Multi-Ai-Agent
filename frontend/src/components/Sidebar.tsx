@@ -19,7 +19,6 @@ const mainItems = [
   { id: "onboarding", label: "Start New Idea",   icon: Lightbulb       },
   { id: "live",       label: "Live Session",      icon: Radio           },
   { id: "summary",    label: "Decision Summary",  icon: FileText        },
-  { id: "history",    label: "History",           icon: History         },
 ];
 
 // Pinned to bottom

@@ -77,11 +77,12 @@ const Header: React.FC<HeaderProps> = ({ onLogin }) => {
                 <a href="#" className={styles.dropdownItem}>Decision Summary</a>
                 <a href="#" className={styles.dropdownItem}>MVP Planner</a>
                 <a href="#" className={styles.dropdownItem}>GTM Strategy Generator</a>
+                <a href="#" className={styles.dropdownItem}>Market Research</a>
               </div>
             )}
           </div>
 
-          <a href="https://github.com/your-repo" target="_blank" rel="noreferrer" className={styles.navLink}>
+          <a href="https://github.com/NagendraKandula/Multi-Ai-Agent/tree/nani" target="_blank" rel="noreferrer" className={styles.navLink}>
             GitHub
           </a>
         </nav>
