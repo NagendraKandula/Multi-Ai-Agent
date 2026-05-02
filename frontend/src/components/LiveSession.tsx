@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/LiveSession.module.css";
 
 // --- Types ---
@@ -12,18 +12,21 @@ interface Message {
 interface LiveSessionProps {
   setActive: (page: string) => void;
   setSessionData: (data: any) => void;
-  sessionData: any; 
 }
+
 interface Round {
   round: number;
   messages: { agent: string; content: string }[];
 }
 
+// ✅ 1. Added messages and transcript to the Session type
 interface Session {
   id: string;
   agenda: string;
   date: string;
   duration: string;
+  messages: Message[];
+  transcript: string[];
 }
 
 // --- Agent Styling Config ---
@@ -39,25 +42,29 @@ const AGENT_BG: Record<string, string> = {
   CSO: "#ffedd5", Supervisor: "#f1f5f9"
 };
 
-// --- Save session helper ---
-const saveSession = (agenda: string, elapsedSeconds: number) => {
+// ✅ 2. Updated helper to actually save the chat messages and transcript
+const saveSession = (agenda: string, elapsedSeconds: number, messages: Message[], transcript: string[]) => {
   const existing: Session[] = JSON.parse(localStorage.getItem("previousSessions") || "[]");
   const minutes = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
   const duration = minutes > 0 ? `${minutes}m ${secs}s` : `${secs}s`;
+  
   const newSession: Session = {
     id: Date.now().toString(),
     agenda,
     date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
     duration,
+    messages,     // Store UI messages
+    transcript    // Store backend transcript
   };
-  const updated = [newSession, ...existing].slice(0, 5);
+  
+  const updated = [newSession, ...existing].slice(0, 5); // Keep last 5 sessions
   localStorage.setItem("previousSessions", JSON.stringify(updated));
 };
 
 // ─── Agenda Setup Page ────────────────────────────────────────────────────────
 
-const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
+const AgendaPage = ({ onStart }: { onStart: (agenda: string, savedSession?: Session) => void }) => {
   const [agenda, setAgenda] = useState("");
   const [sessions, setSessions] = useState<Session[]>([]);
 
@@ -76,20 +83,17 @@ const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
 
   return (
     <div className={styles.agendaPage}>
-
-      {/* Header */}
       <div className={styles.agendaHeader}>
         <h1 className={styles.agendaTitle}>Interactive Meeting</h1>
         <p className={styles.agendaSubtitle}>{bizName}</p>
       </div>
 
-      {/* New Session Card */}
       <div className={styles.agendaCard}>
         <h3 className={styles.agendaCardTitle}>New Session</h3>
         <p className={styles.agendaQuestion}>What should the board discuss today?</p>
         <textarea
           className={styles.agendaTextarea}
-          placeholder="e.g. Discuss our market entry strategy and how to allocate the initial budget..."
+          placeholder="e.g. Discuss our market entry strategy..."
           value={agenda}
           onChange={(e) => setAgenda(e.target.value)}
           rows={4}
@@ -103,7 +107,6 @@ const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
         </button>
       </div>
 
-      {/* Previous Sessions Card */}
       <div className={styles.sessionsCard}>
         <div className={styles.sessionsHeader}>
           <h3 className={styles.sessionsTitle}>Previous Sessions</h3>
@@ -122,7 +125,7 @@ const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
               <div
                 key={s.id}
                 className={styles.sessionItem}
-                onClick={() => onStart(s.agenda)}
+                onClick={() => onStart(s.agenda, s)} // ✅ Pass the full saved session back!
               >
                 <div className={styles.sessionInfo}>
                   <span className={styles.sessionAgenda}>{s.agenda}</span>
@@ -134,7 +137,6 @@ const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
           </div>
         )}
       </div>
-
     </div>
   );
 };
@@ -143,36 +145,32 @@ const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
 
 const LiveSessionPage = ({ 
   agenda, 
+  savedSession, // ✅ Accept the saved session as a prop
   onEnd,
   setActive,
-  setSessionData,  
-  sessionData 
+  setSessionData
 }: { 
   agenda: string; 
+  savedSession?: Session;
   onEnd: () => void;
   setActive: (page: string) => void;
   setSessionData: (data: any) => void;
-  sessionData: any;
 }) => {
-  const [messages, setMessages] = useState<Message[]>(
-  sessionData?.messages || []
-);
+  
+  // ✅ 3. Initialize state with the saved session data so the chat reappears!
+  const [messages, setMessages] = useState<Message[]>(savedSession?.messages || []);
+  const [transcript, setTranscript] = useState<string[]>(savedSession?.transcript || []);
+  const [isDebateOver, setIsDebateOver] = useState(savedSession?.transcript ? savedSession.transcript.length > 0 : false);
+  
   const [userInput, setUserInput] = useState("");
   const [elapsed, setElapsed] = useState(0);
-
   const [isPaused, setIsPaused] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
   const [typingAgent, setTypingAgent] = useState<string | null>(null);
-  const [isDebateOver, setIsDebateOver] = useState(false);
-  const [transcript, setTranscript] = useState<string[]>(
-  sessionData?.transcript || []
-); 
 
   const hasStarted = useRef(false);
-
   const onboardingData = JSON.parse(localStorage.getItem("onboardingData") || "{}");
 
-  // Timer
   useEffect(() => {
     let timer: any;
     if (!isPaused) {
@@ -180,24 +178,15 @@ const LiveSessionPage = ({
     }
     return () => clearInterval(timer);
   }, [isPaused]);
-   useEffect(() => {
-  setSessionData({
-    messages,
-    transcript,
-    onboardingData
-  });
 
-  localStorage.setItem("liveSession", JSON.stringify({
-    messages,
-    transcript,
-    onboardingData
-  }));
-}, [messages, transcript]);
-  // Initial prompt — fires only once
   useEffect(() => {
     if (hasStarted.current) return;
     hasStarted.current = true;
-    handleAskBoard(agenda);
+    
+    // ✅ 4. Only auto-start the debate if it's a BRAND NEW session
+    if (!savedSession || !savedSession.messages || savedSession.messages.length === 0) {
+      handleAskBoard(agenda);
+    }
   }, []);
 
   const formatTime = (s: number) => {
@@ -207,9 +196,9 @@ const LiveSessionPage = ({
   };
 
   const handleAskBoard = async (text: string) => {
-    
     if (isPaused) return;
     setIsLaunching(true);
+    
     try {
       const res = await fetch("http://localhost:4000/simulation/message", {
         method: "POST",
@@ -218,14 +207,16 @@ const LiveSessionPage = ({
       });
 
       const data = await res.json();
+      
       if (!res.ok || !data?.rounds) {
-  console.error("Bad response:", data);
-  return;
+        console.error("Bad response:", data);
+        return;
       }
-  if (data.transcript) {
-  setTranscript((prev) => [...prev, ...data.transcript]);
-  setIsDebateOver(true);
-  }
+      
+      if (data.transcript) {
+        setTranscript(data.transcript);
+        setIsDebateOver(true);
+      }
 
       for (const round of data.rounds as Round[]) {
         for (const msg of round.messages) {
@@ -265,14 +256,13 @@ const LiveSessionPage = ({
   };
 
   const handleStop = () => {
-    saveSession(agenda, elapsed);
+    // ✅ Include messages and transcript when saving!
+    saveSession(agenda, elapsed, messages, transcript);
     onEnd();
   };
 
   return (
     <div className={styles.livePage}>
-
-      {/* Top Bar */}
       <div className={styles.topBar}>
         <div className={styles.topBarLeft}>
           <span className={styles.liveIndicator}>
@@ -294,7 +284,6 @@ const LiveSessionPage = ({
         </div>
       </div>
 
-      {/* Chat Area */}
       <div className={styles.chatScroll}>
         <div className={styles.messagesFeed}>
           {messages.map((msg) => {
@@ -332,7 +321,7 @@ const LiveSessionPage = ({
               <div className={styles.agentLabel}>
                 <span
                   className={styles.agentDot}
-                  style={{ background: AGENT_COLORS[typingAgent] }}
+                  style={{ background: AGENT_COLORS[typingAgent] || "#6b7280" }}
                 />
                 <span className={styles.agentName}>{typingAgent} is thinking...</span>
               </div>
@@ -343,23 +332,25 @@ const LiveSessionPage = ({
               </div>
             </div>
           )}
-
         </div>
       </div>
+
       {isDebateOver && (
-  <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-    <button
-      className={styles.topBtn}
-     onClick={() => {
-    setSessionData({ transcript, onboardingData });
-    setActive("summary");
-}}
-    >
-      Generate Decision Summary
-    </button>
-  </div>
-)}
-      {/* Input Bar */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+          <button
+            className={styles.topBtn}
+            onClick={() => {
+              // ✅ 5. Save the session automatically when they proceed to the summary!
+              saveSession(agenda, elapsed, messages, transcript);
+              setSessionData({ transcript, onboardingData });
+              setActive("summary");
+            }}
+          >
+            Generate Decision Summary
+          </button>
+        </div>
+      )}
+
       <div className={styles.inputBarWrap}>
         <div className={styles.inputBar}>
           <input
@@ -379,34 +370,30 @@ const LiveSessionPage = ({
           </button>
         </div>
       </div>
-
     </div>
   );
 };
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-// ─── Main Component ──────────────────────────────────────────────────────────
 
-const LiveSession: React.FC<LiveSessionProps> = ({ 
-  setActive, 
-  setSessionData, 
-  sessionData   // ✅ ADD THIS
-}) => {
+const LiveSession: React.FC<LiveSessionProps> = ({ setActive, setSessionData }) => {
   const [view, setView] = useState<"agenda" | "live">("agenda");
   const [agenda, setAgenda] = useState("");
+  const [restoredSession, setRestoredSession] = useState<Session | undefined>();
 
   return view === "live" ? (
     <LiveSessionPage 
       agenda={agenda} 
+      savedSession={restoredSession} // Pass the restored history down!
       onEnd={() => setView("agenda")} 
       setActive={setActive}
       setSessionData={setSessionData}
-      sessionData={sessionData}
     />
   ) : (
     <AgendaPage 
-      onStart={(a) => { 
+      onStart={(a, session) => { 
         setAgenda(a); 
+        setRestoredSession(session); // Catch the history from the click
         setView("live"); 
       }} 
     />
