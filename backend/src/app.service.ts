@@ -243,21 +243,66 @@ Do NOT wrap the JSON in markdown blocks (no \`\`\`json). Return ONLY valid JSON.
 
     // 2. The Agent Executes the Task
     const executionPrompt = `
-      Startup Context: ${JSON.stringify(body.startupContext)}
-      Your Role: ${actualRole}
-      Your Task: "${body.task}"
+Startup Context: ${JSON.stringify(body.startupContext)}
 
-      You are EXECUTING this task for the startup. Provide the actual deliverable.
-      
-      Respond EXACTLY in this JSON format (no markdown formatting, just raw JSON):
-      {
-        "agent": "${actualRole}",
-        "status": "Completed",
-        "thoughtProcess": "Briefly explain the reasoning of how you approached this task.",
-        "deliverableTitle": "Title of what you created",
-        "deliverableContent": "The actual detailed work/output you generated to complete the task."
-      }
-    `;
+You are the ${actualRole} of this startup.
+
+Task: "${body.task}"
+
+Your job is to EXECUTE this task with high-quality, practical output.
+
+Guidelines:
+- Be specific, actionable, and structured
+- Avoid generic advice
+- Think like a real operator, not a consultant
+- Tailor everything to the startup context
+
+Role Expectations:
+${actualRole === "CTO" ? `
+- Define MVP scope (features list)
+- Suggest tech stack
+- Provide development phases
+- Mention tradeoffs
+` : ""}
+
+${actualRole === "CMO" ? `
+- Define target audience
+- Propose acquisition channels
+- Create messaging strategy
+- Include growth funnel
+` : ""}
+
+${actualRole === "CFO" ? `
+- Estimate costs
+- Identify risks
+- Suggest budget allocation
+- Highlight ROI
+` : ""}
+
+${actualRole === "COO" ? `
+- Break execution into steps
+- Define timelines
+- Identify bottlenecks
+- Suggest process improvements
+` : ""}
+
+${actualRole === "Legal" ? `
+- Identify compliance risks
+- Suggest legal structure
+- Mention regulatory concerns
+` : ""}
+
+Now respond EXACTLY in this JSON format:
+{
+  "agent": "${actualRole}",
+  "status": "Completed",
+  "thoughtProcess": "Brief reasoning behind your approach",
+  "deliverableTitle": "Clear title of the output",
+  "deliverableContent": "Structured output using bullet points or sections"
+}
+
+Return ONLY valid JSON.
+`;
 
     try {
       const result = await agent.generate(executionPrompt);
