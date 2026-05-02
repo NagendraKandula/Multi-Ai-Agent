@@ -4,7 +4,6 @@ import { Agent, MessageList, isSupportedLanguageModel, tryGenerateWithJsonFallba
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
 import { cacBenchmarkTool, runwayCalculatorTool } from './tools/d89c9a6a-018f-4f61-8689-0e8977f97f75.mjs';
-import { adBudgetEstimatorTool, techStackRecommenderTool, competitorSearchTool } from './tools/cb4818d0-ed62-4d86-82f2-0c924e007408.mjs';
 import { createMistral } from '@ai-sdk/mistral';
 import { mkdtemp, rm, readFile, writeFile, mkdir, copyFile, readdir, stat } from 'fs/promises';
 import * as https from 'https';
@@ -121,10 +120,7 @@ OUTPUT:
 - Target Users:
 - Competitors:
 - Market Opportunity:
-`,
-  tools: {
-    competitorSearchTool
-  }
+`
 });
 const mvpPlanningAgent = new Agent({
   id: "mvpPlanner",
@@ -154,10 +150,7 @@ OUTPUT:
 - MVP Features:
 - Tech Stack:
 - Timeline:
-`,
-  tools: {
-    techStackRecommenderTool
-  }
+`
 });
 const gtmStrategyAgent = new Agent({
   id: "gtmStrategist",
@@ -187,10 +180,7 @@ OUTPUT:
 - Launch Plan:
 - Channels:
 - Growth Tactics:
-`,
-  tools: {
-    adBudgetEstimatorTool
-  }
+`
 });
 const mastra = new Mastra({
   agents: {

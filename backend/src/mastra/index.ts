@@ -3,7 +3,7 @@ import { Agent } from '@mastra/core/agent';
 import { createGroq } from '@ai-sdk/groq';
 import { PinoLogger } from '@mastra/loggers';
 import { runwayCalculatorTool, techTrendCheckerTool, cacBenchmarkTool} from './tools/board-tools';
-import { competitorSearchTool, techStackRecommenderTool, adBudgetEstimatorTool } from './tools/startup-tools';
+//import { competitorSearchTool, techStackRecommenderTool, adBudgetEstimatorTool } from './tools/startup-tools';
 import { createMistral } from '@ai-sdk/mistral';
 const model = 'ollama-cloud/cogito-2.1:671b';
 const groq = createGroq({
@@ -82,7 +82,7 @@ OUTPUT:
 - Competitors:
 - Market Opportunity:
 `,
-tools: { competitorSearchTool },
+
 });
 
 const mvpPlanningAgent = new Agent({
@@ -113,7 +113,7 @@ OUTPUT:
 - MVP Features:
 - Tech Stack:
 - Timeline:
-`, tools: { techStackRecommenderTool },
+`,
 });
 
 const gtmStrategyAgent = new Agent({
@@ -145,7 +145,7 @@ OUTPUT:
 - Channels:
 - Growth Tactics:
 `,
-tools: { adBudgetEstimatorTool },
+
 });
 
 
