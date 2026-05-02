@@ -43,10 +43,6 @@ Provide a clear startup roadmap.
     return { plan: result.text };
   }
 
-  // ✅ Live debate with Sequential Reasoning
-
-  // ✅ Startup roadmap
-  // ✅ Live debate (Updated for Deep Sequential Reasoning)
   async handleLiveDebate(message: string, onboardingData: any) {
    const agentNames: string[] = Array.isArray(onboardingData?.selectedAgents)
       ? onboardingData.selectedAgents
@@ -147,7 +143,7 @@ Instructions:
 - Add a NEW point (do not repeat yourself)
 - Be natural and conversational
 - It's okay to disagree
-- Keep it to 2–3 sentences max
+- Keep it to 4-5 sentences max
 `);
 
         const msg: Message = {
@@ -162,37 +158,7 @@ Instructions:
           messages: [msg],
         });
       }
-
-      // 🧠 Final supervisor decision
-      const final = await supervisor.generate(`
-${context}
-
-You are the CEO closing this meeting.
-
-Do NOT summarize.
-
-Instead:
-- State the FINAL decision
-- What we WILL do
-- What we WON’T do
-- One immediate next step
-- One key risk
-
-Be decisive and practical.
-Max 4 sentences.
-`);
-
-      rounds.push({
-        round: roundCounter,
-        messages: [
-          {
-            agent: 'Supervisor',
-            content: final.text.trim(),
-          },
-        ],
-      });
-
-      return { rounds };
+      return { rounds, transcript: context };
 
     } catch (err) {
       console.error(err);
@@ -211,6 +177,47 @@ Max 4 sentences.
         ],
       };
     }
-  
   }
+   // Update the function signature and prompt injection
+  async generateDecisionSummary(body: { transcript: string | string[], onboardingData: any }) {
+    const supervisor = mastra.getAgentById('supervisor');
+    
+    // ✅ Bulletproof check: If it's an array, join it. If it's a string, keep it.
+    const transcriptText = Array.isArray(body.transcript) 
+      ? body.transcript.join('\n') 
+      : body.transcript;
+
+    const prompt = `
+Startup: ${body.onboardingData?.businessName || 'Unknown'}
+Problem: ${body.onboardingData?.problemSolving || 'Not specified'}
+
+Meeting Transcript:
+${transcriptText}
+
+Based on the debate above, act as the CEO/Supervisor and provide a final decision summary.
+You MUST format your response EXACTLY as a JSON object with the following keys:
+{
+  "score": "A number out of 10 evaluating viability (e.g., '8/10')",
+  "finalSummary": "A comprehensive paragraph summarizing the final decision and strategic direction.",
+  "strengths": ["List of 2-3 key strengths identified in the debate"],
+  "concerns": ["List of 2-3 key risks or concerns identified in the debate"],
+  "Action Plan: ["A concise 3-step action plan for the next 30 days to move forward with the decision."]
 }
+Do NOT wrap the JSON in markdown blocks (no \`\`\`json). Return ONLY valid JSON.
+`;
+
+    try {
+       const response = await supervisor.generate(prompt);
+       const cleanedText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+       return JSON.parse(cleanedText);
+    } catch (e) {
+       console.error("Summary generation failed", e);
+       return {
+         score: "N/A",
+         finalSummary: "Debate concluded, but failed to generate a formatted summary.",
+         strengths: ["Data unavailable"],
+         concerns: ["Formatting error"]
+       };
+    }
+  }
+  }

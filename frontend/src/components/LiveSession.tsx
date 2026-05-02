@@ -9,6 +9,11 @@ interface Message {
   side: "left" | "right";
 }
 
+interface LiveSessionProps {
+  setActive: (page: string) => void;
+  setSessionData: (data: any) => void;
+  sessionData: any; 
+}
 interface Round {
   round: number;
   messages: { agent: string; content: string }[];
@@ -136,13 +141,32 @@ const AgendaPage = ({ onStart }: { onStart: (agenda: string) => void }) => {
 
 // ─── Live Session Page ────────────────────────────────────────────────────────
 
-const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const LiveSessionPage = ({ 
+  agenda, 
+  onEnd,
+  setActive,
+  setSessionData,  
+  sessionData 
+}: { 
+  agenda: string; 
+  onEnd: () => void;
+  setActive: (page: string) => void;
+  setSessionData: (data: any) => void;
+  sessionData: any;
+}) => {
+  const [messages, setMessages] = useState<Message[]>(
+  sessionData?.messages || []
+);
   const [userInput, setUserInput] = useState("");
   const [elapsed, setElapsed] = useState(0);
+
   const [isPaused, setIsPaused] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
   const [typingAgent, setTypingAgent] = useState<string | null>(null);
+  const [isDebateOver, setIsDebateOver] = useState(false);
+  const [transcript, setTranscript] = useState<string[]>(
+  sessionData?.transcript || []
+); 
 
   const hasStarted = useRef(false);
 
@@ -156,7 +180,19 @@ const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void 
     }
     return () => clearInterval(timer);
   }, [isPaused]);
+   useEffect(() => {
+  setSessionData({
+    messages,
+    transcript,
+    onboardingData
+  });
 
+  localStorage.setItem("liveSession", JSON.stringify({
+    messages,
+    transcript,
+    onboardingData
+  }));
+}, [messages, transcript]);
   // Initial prompt — fires only once
   useEffect(() => {
     if (hasStarted.current) return;
@@ -185,7 +221,12 @@ const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void 
       if (!res.ok || !data?.rounds) {
   console.error("Bad response:", data);
   return;
-}
+      }
+  if (data.transcript) {
+  setTranscript((prev) => [...prev, ...data.transcript]);
+  setIsDebateOver(true);
+  }
+
       for (const round of data.rounds as Round[]) {
         for (const msg of round.messages) {
           setTypingAgent(msg.agent);
@@ -305,7 +346,19 @@ const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void 
 
         </div>
       </div>
-
+      {isDebateOver && (
+  <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+    <button
+      className={styles.topBtn}
+     onClick={() => {
+    setSessionData({ transcript, onboardingData });
+    setActive("summary");
+}}
+    >
+      Generate Decision Summary
+    </button>
+  </div>
+)}
       {/* Input Bar */}
       <div className={styles.inputBarWrap}>
         <div className={styles.inputBar}>
@@ -332,15 +385,31 @@ const LiveSessionPage = ({ agenda, onEnd }: { agenda: string; onEnd: () => void 
 };
 
 // ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ──────────────────────────────────────────────────────────
 
-const LiveSession = () => {
+const LiveSession: React.FC<LiveSessionProps> = ({ 
+  setActive, 
+  setSessionData, 
+  sessionData   // ✅ ADD THIS
+}) => {
   const [view, setView] = useState<"agenda" | "live">("agenda");
   const [agenda, setAgenda] = useState("");
 
   return view === "live" ? (
-    <LiveSessionPage agenda={agenda} onEnd={() => setView("agenda")} />
+    <LiveSessionPage 
+      agenda={agenda} 
+      onEnd={() => setView("agenda")} 
+      setActive={setActive}
+      setSessionData={setSessionData}
+      sessionData={sessionData}
+    />
   ) : (
-    <AgendaPage onStart={(a) => { setAgenda(a); setView("live"); }} />
+    <AgendaPage 
+      onStart={(a) => { 
+        setAgenda(a); 
+        setView("live"); 
+      }} 
+    />
   );
 };
 

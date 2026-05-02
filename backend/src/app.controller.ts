@@ -25,4 +25,8 @@ export class AppController {
 
     return this.appService.handleLiveDebate(message, onboardingData);
   }
+  @Post('summary')
+  async getSummary(@Body() body: { transcript: string | string[], onboardingData: any }) {
+    return this.appService.generateDecisionSummary(body);
+  }
 }

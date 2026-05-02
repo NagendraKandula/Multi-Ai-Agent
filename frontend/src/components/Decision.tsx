@@ -1,109 +1,208 @@
-import styles from "../styles/Decision.module.css";
+import React, { useEffect, useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import styles from '../styles/Decision.module.css';
 
-const Decision = () => {
+interface DecisionProps {
+  sessionData: {
+    transcript: string[];
+    onboardingData: any;
+  } | null;
+}
+
+interface SummaryData {
+  score: string;
+  finalSummary: string;
+  strengths: string[];
+  concerns: string[];
+}
+
+const Decision: React.FC<DecisionProps> = ({ sessionData }) => {
+  const [summary, setSummary] = useState<SummaryData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false); // Track loading state for PDF button
+
+  // 1. Create a reference for the content we want to capture
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sessionData || !sessionData.transcript || sessionData.transcript.length === 0) {
+       setError("No debate data found. Please run a live session first.");
+       setLoading(false);
+       return;
+    }
+
+    const fetchSummary = async () => {
+      try {
+        const res = await fetch('http://localhost:4000/simulation/summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            transcript: sessionData.transcript, 
+            onboardingData: sessionData.onboardingData 
+          })
+        });
+
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+        const data = await res.json();
+        setSummary(data);
+      } catch (err) {
+        console.error("Failed to load summary", err);
+        setError("Failed to generate summary. Please check your backend.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSummary();
+  }, [sessionData]);
+
+  // 2. The PDF Export Function
+  const handleExportPDF = async () => {
+    if (!contentRef.current) return;
+    
+    setIsExporting(true); // Show loading state on button
+    
+    try {
+      // Take a high-resolution snapshot of the div
+      const canvas = await html2canvas(contentRef.current, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Create a PDF document (A4 size, portrait)
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Calculate dimensions to fit the image on the PDF page perfectly
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      // Add the image to the PDF and trigger download
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Decision_Summary_${sessionData?.onboardingData?.businessName || 'Startup'}.pdf`);
+    } catch (err) {
+      console.error("Failed to export PDF", err);
+      alert("Failed to export PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.page} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+         <h2 style={{ color: '#6b6b6b' }}>Supervisor is drafting the final decision...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <div style={{ color: 'red', background: '#fff0f0', padding: '20px', borderRadius: '8px' }}>
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.title}>Decision Summary</h1>
-        <p className={styles.subtitle}>
-          Milk Delivery Service - location
-        </p>
+      {/* 3. Wrap the content you want in the PDF with the ref */}
+      <div ref={contentRef} style={{ padding: '20px', background: '#f7f7f5' }}>
+        
+        {/* Header */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>Decision Summary</h1>
+          <p className={styles.subtitle}>
+            {sessionData?.onboardingData?.idea || "Session Summary"}
+          </p>
+        </div>
+
+        <div className={styles.card}>
+
+          {/* FINAL RECOMMENDATION */}
+          <h2 className={styles.sectionTitle}>Final Recommendation</h2>
+          <p className={styles.agenda}>
+            <strong>Agenda:</strong> {sessionData?.onboardingData?.agenda || "N/A"}
+          </p>
+
+          {/* STRENGTH + CONCERNS GRID (Side-by-Side) */}
+          <div className={styles.grid}>
+            
+            {/* Strength */}
+            <div>
+              <h3 className={styles.subHeading}>Strength</h3>
+              <ul className={styles.list}>
+                {summary?.strengths?.map((str, i) => (
+                  <li key={i}>
+                    <span className={styles.check}>✔</span>
+                    {str}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Concerns */}
+            <div>
+              <h3 className={styles.subHeading}>Concerns</h3>
+              <ul className={styles.list}>
+                {summary?.concerns?.map((con, i) => (
+                  <li key={i}>
+                    <span className={styles.warn}>○</span>
+                    {con}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* ACTION PLAN */}
+          <div className={styles.actionSection}>
+            <h3 className={styles.subHeading}>Action Plan</h3>
+            <ul className={styles.actionList}>
+              {summary?.strengths?.slice(0, 4).map((item, i) => (
+                <li key={i}>
+                  <span className={styles.step}>{i + 1}</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+        </div>
       </div>
 
-      {/* Card */}
-      <div className={styles.card}>
-
-        <h2 className={styles.sectionTitle}>Final Recommendation</h2>
-
-        <p className={styles.agenda}>
-          <strong>Agenda:</strong> how do we price for each delivery?
-        </p>
-
-        {/* Strength + Concerns */}
-        <div className={styles.grid}>
-
-          {/* Strength */}
-          <div>
-            <h3 className={styles.subHeading}>Strength</h3>
-            <ul className={styles.list}>
-              <li>
-                <span className={styles.check}>✓</span>
-                Clear pricing structure based on distance and delivery frequency
-              </li>
-              <li>
-                <span className={styles.check}>✓</span>
-                Competitive analysis shows our pricing is 15% lower than competitors
-              </li>
-              <li>
-                <span className={styles.check}>✓</span>
-                Subscription model provides predictable revenue streams
-              </li>
-            </ul>
-          </div>
-
-          {/* Concerns */}
-          <div>
-            <h3 className={styles.subHeading}>Concerns</h3>
-            <ul className={styles.list}>
-              <li>
-                <span className={styles.warn}>○</span>
-                Fuel costs may fluctuate significantly affecting profit margins
-              </li>
-              <li>
-                <span className={styles.warn}>○</span>
-                Need to test customer willingness to pay premium for same-day delivery
-              </li>
-              <li>
-                <span className={styles.warn}>○</span>
-                Minimum order requirements might deter smaller customers
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-        {/* Action Plan */}
-        <div className={styles.actionSection}>
-          <h3 className={styles.subHeading}>Action Plan</h3>
-
-          <ul className={styles.actionList}>
-            <li>
-              <span className={styles.step}>1</span>
-              Launch pilot pricing program in one neighborhood to validate customer acceptance
-            </li>
-            <li>
-              <span className={styles.step}>2</span>
-              Implement dynamic pricing algorithm that adjusts based on fuel costs
-            </li>
-            <li>
-              <span className={styles.step}>3</span>
-              Create tiered subscription plans to accommodate different customer segments
-            </li>
-            <li>
-              <span className={styles.step}>4</span>
-              Set up quarterly pricing reviews to ensure competitiveness and profitability
-            </li>
-          </ul>
-        </div>
-
-        {/* Footer */}
-        <div className={styles.footer}>
-
-          <div className={styles.score}>
-            Overall Score: <strong>8.9</strong>
-          </div>
+      {/* FOOTER (Score Left, Buttons Right) - OUTSIDE the PDF ref! */}
+      <div className={styles.card} style={{ marginTop: '20px', paddingTop: '20px', paddingBottom: '20px' }}>
+        <div className={styles.footer} style={{ borderTop: 'none', marginTop: 0, paddingTop: 0 }}>
+          
+          <p className={styles.score}>
+            Overall Score: <span>{summary?.score || "N/A"}</span>
+          </p>
 
           <div className={styles.actions}>
-            <button className={styles.primaryBtn}>Approve Plan</button>
-            <button className={styles.secondaryBtn}>Request changes</button>
-            <button className={styles.ghostBtn}>Export as PDF</button>
+            <button className={styles.primaryBtn}>
+              Approve Plan
+            </button>
+            <button className={styles.ghostBtn}>
+              Request changes
+            </button>
+            
+            {/* 4. Attach the export function to the button */}
+            <button 
+              className={styles.ghostBtn} 
+              onClick={handleExportPDF}
+              disabled={isExporting}
+            >
+              {isExporting ? "Generating PDF..." : "Export as PDF"}
+            </button>
           </div>
 
         </div>
-
       </div>
+      
     </div>
   );
 };
